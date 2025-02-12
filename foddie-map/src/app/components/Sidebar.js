@@ -9,17 +9,21 @@ const Sidebar = () => {
 
   return (
     <div className={styles.sidebar}>
-      <ul>
-        <li className={pathname === '/edit_videos' ? styles.active : ''}>
-          <Link href="/edit_videos">Videos to Edit</Link>
-        </li>
-        <li className={pathname === '/edit_reviewers' ? styles.active : ''}>
-          <Link href="/edit_reviewers">Reviewers</Link>
-        </li>
-        <li className={pathname === '/edit_restaurants' ? styles.active : ''}>
-          <Link href="/edit_restaurants">Restaurants</Link>
-        </li>
-      </ul>
+      <Link href="/edit_videos">
+        <div className={`${styles.item} ${pathname === '/edit_videos' ? styles.active : ''}`}>
+          <span>Videos to Edit</span>
+        </div>
+      </Link>
+      <Link href="/edit_reviewers">
+        <div className={`${styles.item} ${pathname === '/edit_reviewers' ? styles.active : ''}`}>
+          <span>Reviewers</span>
+        </div>
+      </Link>
+      <Link href="/edit_restaurants">
+        <div className={`${styles.item} ${pathname === '/edit_restaurants' ? styles.active : ''}`}>
+          <span>Restaurants</span>
+        </div>
+      </Link>
     </div>
   );
 };

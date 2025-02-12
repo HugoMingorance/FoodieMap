@@ -1,5 +1,5 @@
 import Sidebar from '../components/Sidebar';
-import styles from '../Page.module.css';
+import styles from '../page.module.css';
 
 const EditRestaurants = () => {
   return (
