@@ -1,58 +1,90 @@
+/* Contenidor principal que utilitza flexbox per a alinear els seus fills */
 .container {
   display: flex;
+  /* Alinea els elements fills en una fila */
 }
 
+/* Contingut principal amb marge esquerra per deixar espai per a la barra lateral */
 .mainContent {
-  margin-left: 220px; /* Ajusta según el ancho de la barra lateral */
+  margin-left: 220px; /* Ajusta segons l'amplada de la barra lateral */
   padding: 20px;
-  width: calc(100% - 220px);
+  width: calc(100% - 220px); /* Ajusta l'amplada restant per al contingut principal */
 }
 
+/* Botó per afegir una nova entrada */
+.addButton {
+  padding: 10px 20px; /* Espai intern del botó */
+  font-size: 16px; /* Mida de la lletra del botó */
+  background-color: #0070f3; /* Color de fons del botó */
+  color: white; /* Color del text del botó */
+  border: none; /* Sense bordes */
+  cursor: pointer; /* Cursor de mà quan es passa per sobre */
+  border-radius: 5px; /* Bordes arrodonides */
+  margin-bottom: 20px; /* Espai inferior */
+  transition: background-color 0.3s; /* Transició suau per al canvi de color de fons */
+}
+
+/* Canvia el color de fons del botó quan el ratolí està sobre ell */
+.addButton:hover {
+  background-color: #005bb5; /* Color de fons quan es passa per sobre */
+}
+
+/* Formulari que utilitza flexbox per a alinear els seus elements verticalment */
 .form {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-direction: column; /* Alinea els elements verticalment */
+  gap: 20px; /* Espai entre els elements del formulari */
+  padding: 20px; /* Espai intern del formulari */
+  background-color: #f9f9f9; /* Color de fons del formulari */
+  border: 1px solid #ddd; /* Borde del formulari */
+  border-radius: 10px; /* Bordes arrodonides */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Ombra del formulari */
+  max-width: 500px; /* Amplada màxima del formulari per fer-lo menys ample, ajusta segons necessiti */
+  align-self: flex-start; /* Alinea el formulari a l'esquerra */
 }
 
+/* Grup de camps del formulari que utilitza flexbox per a alinear els seus elements verticalment */
 .formGroup {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Alinea els elements verticalment */
 }
 
+/* Etiqueta del camp del formulari amb marge inferior */
 .formGroup label {
-  margin-bottom: 8px;
-  font-weight: 600;
+  margin-bottom: 8px; /* Espai inferior de les etiquetes */
+  font-weight: 600; /* Pes de la lletra de les etiquetes */
 }
 
+/* Input del camp del formulari amb padding, estil de la font i bordes */
 .formGroup input {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  outline: none;
-  transition: border-color 0.3s;
+  padding: 10px; /* Espai intern dels inputs */
+  font-size: 16px; /* Mida de la lletra dels inputs */
+  border: 1px solid #ccc; /* Borde dels inputs */
+  border-radius: 5px; /* Bordes arrodonides dels inputs */
+  outline: none; /* Treu el borde de focus per defecte */
+  transition: border-color 0.3s; /* Transició suau per al canvi de color del borde */
 }
 
+/* Canvia el color del borde de l'input quan està enfocat */
 .formGroup input:focus {
-  border-color: #0070f3;
+  border-color: #0070f3; /* Color del borde quan l'input està enfocat */
 }
 
+/* Botó de submissió del formulari amb padding, estil de la font i bordes */
 .submitButton {
-  padding: 12px;
-  font-size: 16px;
-  background-color: #0070f3;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s;
+  padding: 12px 20px; /* Espai intern del botó */
+  font-size: 16px; /* Mida de la lletra del botó */
+  background-color: #0070f3; /* Color de fons del botó */
+  color: white; /* Color del text del botó */
+  border: none; /* Sense bordes */
+  cursor: pointer; /* Cursor de mà quan es passa per sobre */
+  border-radius: 5px; /* Bordes arrodonides */
+  transition: background-color 0.3s; /* Transició suau per al canvi de color de fons */
+  align-self: flex-start; /* Alinea el botó a l'esquerra */
+  max-width: 200px; /* Amplada màxima per al botó */
 }
 
+/* Canvia el color de fons del botó quan el ratolí està sobre ell */
 .submitButton:hover {
-  background-color: #005bb5;
+  background-color: #005bb5; /* Color de fons quan es passa per sobre */
 }
