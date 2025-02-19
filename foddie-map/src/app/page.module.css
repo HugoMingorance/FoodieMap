@@ -89,6 +89,26 @@
   background-color: #005bb5; /* Color de fons quan es passa per sobre */
 }
 
+/* Botó de cancel·lació del formulari amb padding, estil de la font i bordes */
+.cancelButton {
+  padding: 12px 20px; /* Espai intern del botó */
+  font-size: 16px; /* Mida de la lletra del botó */
+  background-color: #dc3545; /* Color de fons del botó */
+  color: white; /* Color del text del botó */
+  border: none; /* Sense bordes */
+  cursor: pointer; /* Cursor de mà quan es passa per sobre */
+  border-radius: 5px; /* Bordes arrodonides */
+  transition: background-color 0.3s; /* Transició suau per al canvi de color de fons */
+  align-self: flex-start; /* Alinea el botó a l'esquerra */
+  max-width: 200px; /* Amplada màxima per al botó */
+  margin-top: 10px; /* Espai superior */
+}
+
+/* Canvia el color de fons del botó quan el ratolí està sobre ell */
+.cancelButton:hover {
+  background-color: #c82333; /* Color de fons quan es passa per sobre */
+}
+
 .successMessage {
   color: green;
   font-weight: 700;
@@ -203,4 +223,15 @@
 .fecha {
   flex: 1;
   font-weight: 700;
+}
+
+/* Estilo para el formulario de edición */
+.editForm {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  flex-direction: column; /* Alinea els elements verticalment */
+  gap: 20px; /* Espai entre els elements del formulari */
+  background-color: #f9f9f9; /* Color de fons del formulari */
+  border-radius: 10px; /* Bordes arrodonides */
 }
