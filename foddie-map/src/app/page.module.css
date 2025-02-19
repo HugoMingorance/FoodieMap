@@ -93,3 +93,48 @@
   color: green;
   font-weight: 700;
 }
+
+.searchInput {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 10px;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.reviewersList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.reviewerItem {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.pagination button.disabled, .pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination button.active {
+  background-color: #0070f3;
+  color: #fff;
+  border-color: #0070f3;
+}

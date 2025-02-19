@@ -1,9 +1,9 @@
-// Import the functions you need from the SDKs you need
+// Importar las funciones necesarias del SDK de Firebase
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, isSupported } from "firebase/analytics";
 
-// Your web app's Firebase configuration
+// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBgBSgFoljKtNlUHDZwdOgl9JAC07NJdro",
   authDomain: "foddiemap.firebaseapp.com",
@@ -14,9 +14,11 @@ const firebaseConfig = {
   measurementId: "G-F644M9STTJ"
 };
 
-// Initialize Firebase
+// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Inicializar Firestore
 const db = getFirestore(app);
 
-export { db };
+// Exportar Firebase app y Firestore
+export { app, db };

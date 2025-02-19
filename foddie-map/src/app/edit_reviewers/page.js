@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import styles from '../page.module.css';
-import { db } from '../FirebaseConfig.js';
-import { collection, addDoc } from "firebase/firestore"; 
+import { app, db } from '../FirebaseConfig.js';
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { getAnalytics, isSupported } from "firebase/analytics";
 
 const EditReviewers = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +18,24 @@ const EditReviewers = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [reviewers, setReviewers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [reviewersPerPage] = useState(2);
 
+  useEffect(() => {
+    fetchReviewers();
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      isSupported().then((supported) => {
+        if (supported) {
+          getAnalytics(app);
+        }
+      });
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,6 +65,7 @@ const EditReviewers = () => {
         channelId: ''
       });
       setSuccessMessage('Se ha añadido correctamente');
+      fetchReviewers(); // Actualizar la lista de reviewers después de añadir uno nuevo
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -55,6 +74,33 @@ const EditReviewers = () => {
   const handleAddNewClick = () => {
     setShowForm(!showForm);
   };
+
+  const fetchReviewers = async () => {
+    const q = searchQuery
+      ? query(collection(db, "Reviewers"), where("Name", ">=", searchQuery), where("Name", "<=", searchQuery + '\uf8ff'))
+      : collection(db, "Reviewers");
+    const querySnapshot = await getDocs(q);
+    const reviewersList = querySnapshot.docs.map(doc => doc.data());
+    setReviewers(reviewersList);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Resetear a la primera página cuando se realiza una nueva búsqueda
+  };
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Obtener los reviewers actuales
+  const indexOfLastReviewer = currentPage * reviewersPerPage;
+  const indexOfFirstReviewer = indexOfLastReviewer - reviewersPerPage;
+  const currentReviewers = reviewers.slice(indexOfFirstReviewer, indexOfLastReviewer);
+
+  // Calcular el número total de páginas
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(reviewers.length / reviewersPerPage); i++) {
+    pageNumbers.push(i);
+  }
 
   return (
     <div className={styles.container}>
@@ -125,6 +171,31 @@ const EditReviewers = () => {
             {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
           </form>
         )}
+        <div>
+        <input
+          type="text"
+          placeholder="Buscar por nombre"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className={styles.searchInput}
+        />
+        <div className={styles.pagination}>
+          <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
+          {pageNumbers.map(number => (
+            <button key={number} onClick={() => paginate(number)} className={currentPage === number ? styles.active : ''}>
+              {number}
+            </button>
+          ))}
+          <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === pageNumbers.length}>Next</button>
+        </div>
+        <ul className={styles.reviewersList}>
+          {currentReviewers.map((reviewer, index) => (
+            <li key={index} className={styles.reviewerItem}>
+              {reviewer.Name}
+            </li>
+          ))}
+        </ul>
+        </div>
       </div>
     </div>
   );
