@@ -16,6 +16,8 @@ const EditReviewers = () => {
   });
 
   const [showForm, setShowForm] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,6 +38,15 @@ const EditReviewers = () => {
         ChannelID: formData.channelId
       });
       console.log("Document written with ID: ", docRef.id);
+      // Vaciar los inputs del formulario
+      setFormData({
+        avatarUrl: '',
+        lastVideoChecked: '',
+        name: '',
+        web: '',
+        channelId: ''
+      });
+      setSuccessMessage('Se ha añadido correctamente');
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -111,6 +122,7 @@ const EditReviewers = () => {
               />
             </div>
             <button type="submit" className={styles.submitButton}>Crear nuevo Reviewer</button>
+            {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
           </form>
         )}
       </div>

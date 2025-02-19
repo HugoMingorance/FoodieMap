@@ -88,3 +88,8 @@
 .submitButton:hover {
   background-color: #005bb5; /* Color de fons quan es passa per sobre */
 }
+
+.successMessage {
+  color: green;
+  font-weight: 700;
+}
