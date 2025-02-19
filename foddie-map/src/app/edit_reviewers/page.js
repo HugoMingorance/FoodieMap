@@ -53,7 +53,8 @@ const EditReviewers = () => {
         LastVideoIDChecked: formData.lastVideoChecked,
         Name: formData.name,
         Web: formData.web,
-        ChannelID: formData.channelId
+        ChannelID: formData.channelId,
+        createdAt: new Date() // Añadir la fecha de creación
       });
       console.log("Document written with ID: ", docRef.id);
       // Vaciar los inputs del formulario
@@ -80,7 +81,11 @@ const EditReviewers = () => {
       ? query(collection(db, "Reviewers"), where("Name", ">=", searchQuery), where("Name", "<=", searchQuery + '\uf8ff'))
       : collection(db, "Reviewers");
     const querySnapshot = await getDocs(q);
-    const reviewersList = querySnapshot.docs.map(doc => doc.data());
+    const reviewersList = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    reviewersList.sort((a, b) => b.createdAt - a.createdAt); // Ordenar los reviewers por fecha de creación
     setReviewers(reviewersList);
   };
 
@@ -189,9 +194,21 @@ const EditReviewers = () => {
           <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === pageNumbers.length}>Next</button>
         </div>
         <ul className={styles.reviewersList}>
+            <li className={styles.listTitleItem}>
+              <div className={styles.nombre}>Nombre</div>
+              <div className={styles.fecha}>Fecha de creación</div>
+            </li>
+        </ul>
+        <ul className={styles.reviewersList}>
           {currentReviewers.map((reviewer, index) => (
             <li key={index} className={styles.reviewerItem}>
-              {reviewer.Name}
+              <div className={styles.reviewerName}>{reviewer.Name}</div>
+              <div className={styles.reviewerDate}>{new Date(reviewer.createdAt.seconds * 1000).toLocaleString()}</div>
+              <div className={styles.reviewerButtons}>
+                <button className={styles.viewButton}>👁️ Ver</button>
+                <button className={styles.editButton}>✏️ Editar</button>
+                <button className={styles.deleteButton}>❌ Eliminar</button>
+              </div>
             </li>
           ))}
         </ul>
