@@ -49,6 +49,12 @@
   flex-direction: column; /* Alinea els elements verticalment */
 }
 
+/* Contenedor para el input y la imagen de previsualización del avatar */
+.inputWithAvatar {
+  display: flex;
+  align-items: center;
+}
+
 /* Etiqueta del camp del formulari amb marge inferior */
 .formGroup label {
   margin-bottom: 8px; /* Espai inferior de les etiquetes */
@@ -234,4 +240,12 @@
   gap: 20px; /* Espai entre els elements del formulari */
   background-color: #f9f9f9; /* Color de fons del formulari */
   border-radius: 10px; /* Bordes arrodonides */
+}
+
+.avatarPreview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 20px;
 }

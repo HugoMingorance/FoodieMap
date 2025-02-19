@@ -24,6 +24,8 @@ const EditReviewers = () => {
     channelId: ''
   });
 
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState('');
+  const [editAvatarPreviewUrl, setEditAvatarPreviewUrl] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(null); // Estado para controlar el formulario de edición
   const [successMessage, setSuccessMessage] = useState('');
@@ -52,6 +54,9 @@ const EditReviewers = () => {
       ...formData,
       [name]: value
     });
+    if (name === 'avatarUrl') {
+      setAvatarPreviewUrl(value);
+    }
   };
 
   const handleEditChange = (e) => {
@@ -60,6 +65,9 @@ const EditReviewers = () => {
       ...editFormData,
       [name]: value
     });
+    if (name === 'avatarUrl') {
+      setEditAvatarPreviewUrl(value);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -82,6 +90,7 @@ const EditReviewers = () => {
         web: '',
         channelId: ''
       });
+      setAvatarPreviewUrl('');
       setSuccessMessage('Se ha añadido correctamente');
       fetchReviewers(); // Actualizar la lista de reviewers después de añadir uno nuevo
     } catch (e) {
@@ -101,6 +110,7 @@ const EditReviewers = () => {
         ChannelID: editFormData.channelId
       });
       setShowEditForm(null);
+      setEditAvatarPreviewUrl('');
       setSuccessMessage('Se ha editado correctamente');
       fetchReviewers(); // Actualizar la lista de reviewers después de la edición
     } catch (e) {
@@ -120,11 +130,13 @@ const EditReviewers = () => {
       web: reviewer.Web,
       channelId: reviewer.ChannelID
     });
+    setEditAvatarPreviewUrl(reviewer.AvatarURL);
     setShowEditForm(reviewer.id);
   };
 
   const handleCancelEdit = () => {
     setShowEditForm(null);
+    setEditAvatarPreviewUrl('');
   };
 
   const fetchReviewers = async () => {
@@ -170,14 +182,17 @@ const EditReviewers = () => {
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.formGroup}>
               <label htmlFor="avatarUrl">URL del Avatar</label>
-              <input
-                type="text"
-                id="avatarUrl"
-                name="avatarUrl"
-                value={formData.avatarUrl}
-                onChange={handleChange}
-                className={styles.input}
-              />
+              <div className={styles.inputWithAvatar}>
+                <input
+                  type="text"
+                  id="avatarUrl"
+                  name="avatarUrl"
+                  value={formData.avatarUrl}
+                  onChange={handleChange}
+                  className={styles.input}
+                />
+                {avatarPreviewUrl && <img src={avatarPreviewUrl} alt="Avatar Preview" className={styles.avatarPreview} />}
+              </div>
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="lastVideoChecked">Last Video Checked</label>
@@ -228,106 +243,109 @@ const EditReviewers = () => {
           </form>
         )}
         <div>
-        <input
-          type="text"
-          placeholder="Buscar por nombre"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className={styles.searchInput}
-        />
-        <div className={styles.pagination}>
-          <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
-          {pageNumbers.map(number => (
-            <button key={number} onClick={() => paginate(number)} className={currentPage === number ? styles.active : ''}>
-              {number}
-            </button>
-          ))}
-          <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === pageNumbers.length}>Next</button>
-        </div>
-        <ul className={styles.reviewersList}>
-          <li className={styles.listTitleItem}>
-            <div className={styles.nombre}>Nombre</div>
-            <div className={styles.fecha}>Fecha de creación</div>
-          </li>
-        </ul>
-        <ul className={styles.reviewersList}>
-          {currentReviewers.map((reviewer, index) => (
-            <>
-              <li key={index} className={styles.reviewerItem}>
-                <div className={styles.reviewerName}>{reviewer.Name}</div>
-                <div className={styles.reviewerDate}>{new Date(reviewer.createdAt.seconds * 1000).toLocaleString()}</div>
-                <div className={styles.reviewerButtons}>
-                  <button className={styles.viewButton}>👁️ Ver</button>
-                  <button className={styles.editButton} onClick={() => handleEditClick(reviewer)}>✏️ Editar</button>
-                  <button className={styles.deleteButton}>❌ Eliminar</button>
-                </div>
-              </li>
-              {showEditForm === reviewer.id && (
-                <li key={`edit-${index}`} className={styles.editForm}>
-                  <form onSubmit={handleEditSubmit}>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="avatarUrl">URL del Avatar</label>
-                      <input
-                        type="text"
-                        id="avatarUrl"
-                        name="avatarUrl"
-                        value={editFormData.avatarUrl}
-                        onChange={handleEditChange}
-                        className={styles.input}
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="lastVideoChecked">Last Video Checked</label>
-                      <input
-                        type="text"
-                        id="lastVideoChecked"
-                        name="lastVideoChecked"
-                        value={editFormData.lastVideoChecked}
-                        onChange={handleEditChange}
-                        className={styles.input}
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="name">Name</label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={editFormData.name}
-                        onChange={handleEditChange}
-                        className={styles.input}
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="web">Web</label>
-                      <input
-                        type="text"
-                        id="web"
-                        name="web"
-                        value={editFormData.web}
-                        onChange={handleEditChange}
-                        className={styles.input}
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="channelId">Channel ID</label>
-                      <input
-                        type="text"
-                        id="channelId"
-                        name="channelId"
-                        value={editFormData.channelId}
-                        onChange={handleEditChange}
-                        className={styles.input}
-                      />
-                    </div>
-                    <button type="submit" className={styles.submitButton}>Confirmar</button>
-                    <button type="button" className={styles.cancelButton} onClick={handleCancelEdit}>Cancelar</button>
-                  </form>
+          <input
+            type="text"
+            placeholder="Buscar por nombre"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className={styles.searchInput}
+          />
+          <div className={styles.pagination}>
+            <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
+            {pageNumbers.map(number => (
+              <button key={number} onClick={() => paginate(number)} className={currentPage === number ? styles.active : ''}>
+                {number}
+              </button>
+            ))}
+            <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === pageNumbers.length}>Next</button>
+          </div>
+          <ul className={styles.reviewersList}>
+            <li className={styles.listTitleItem}>
+              <div className={styles.nombre}>Nombre</div>
+              <div className={styles.fecha}>Fecha de creación</div>
+            </li>
+          </ul>
+          <ul className={styles.reviewersList}>
+            {currentReviewers.map((reviewer, index) => (
+              <>
+                <li key={index} className={styles.reviewerItem}>
+                  <div className={styles.reviewerName}>{reviewer.Name}</div>
+                  <div className={styles.reviewerDate}>{new Date(reviewer.createdAt.seconds * 1000).toLocaleString()}</div>
+                  <div className={styles.reviewerButtons}>
+                    <button className={styles.viewButton}>👁️ Ver</button>
+                    <button className={styles.editButton} onClick={() => handleEditClick(reviewer)}>✏️ Editar</button>
+                    <button className={styles.deleteButton}>❌ Eliminar</button>
+                  </div>
                 </li>
-              )}
-            </>
-          ))}
-        </ul>
+                {showEditForm === reviewer.id && (
+                  <li key={`edit-${index}`} className={styles.editForm}>
+                    <form onSubmit={handleEditSubmit}>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="avatarUrl">URL del Avatar</label>
+                        <div className={styles.inputWithAvatar}>
+                          <input
+                            type="text"
+                            id="avatarUrl"
+                            name="avatarUrl"
+                            value={editFormData.avatarUrl}
+                            onChange={handleEditChange}
+                            className={styles.input}
+                          />
+                          {editAvatarPreviewUrl && <img src={editAvatarPreviewUrl} alt="Avatar Preview" className={styles.avatarPreview} />}
+                        </div>
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="lastVideoChecked">Last Video Checked</label>
+                        <input
+                          type="text"
+                          id="lastVideoChecked"
+                          name="lastVideoChecked"
+                          value={editFormData.lastVideoChecked}
+                          onChange={handleEditChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="name">Name</label>
+                        <input
+                          type="text"
+                          id="name"
+                          name="name"
+                          value={editFormData.name}
+                          onChange={handleEditChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="web">Web</label>
+                        <input
+                          type="text"
+                          id="web"
+                          name="web"
+                          value={editFormData.web}
+                          onChange={handleEditChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="channelId">Channel ID</label>
+                        <input
+                          type="text"
+                          id="channelId"
+                          name="channelId"
+                          value={editFormData.channelId}
+                          onChange={handleEditChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <button type="submit" className={styles.submitButton}>Confirmar</button>
+                      <button type="button" className={styles.cancelButton} onClick={handleCancelEdit}>Cancelar</button>
+                    </form>
+                  </li>
+                )}
+              </>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
