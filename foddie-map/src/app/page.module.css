@@ -242,6 +242,17 @@
   border-radius: 10px; /* Bordes arrodonides */
 }
 
+/* Estilo para el formulario de visualización */
+.viewForm {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  flex-direction: column; /* Alinea els elements verticalment */
+  gap: 20px; /* Espai entre els elements del formulari */
+  background-color: #e9ecef; /* Color de fons del formulari de visualització */
+  border-radius: 10px; /* Bordes arrodonides */
+}
+
 .avatarPreview {
   width: 100px;
   height: 100px;

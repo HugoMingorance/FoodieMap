@@ -1,0 +1,9 @@
+Button confirmation, delete and update
+
+Appy keys ChannelID apartir del url
+
+imatge canviant
+
+verificar updates
+
+Last video checked es el ultim video penjat del reviewer, esperar més indicacions
