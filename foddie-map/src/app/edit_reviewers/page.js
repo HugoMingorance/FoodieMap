@@ -410,7 +410,7 @@ const EditReviewers = () => {
                           className={styles.input}
                         />
                       </div>
-                      <button type="submit" className={styles.submitButton}>Confirmar</button>
+                      <button type="submit" className={styles.submitButton}>Actualizar</button>
                       <button type="button" className={styles.cancelButton} onClick={handleCancelEdit}>Cancelar</button>
                     </form>
                   </li>
