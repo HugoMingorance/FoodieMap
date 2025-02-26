@@ -183,6 +183,18 @@ const EditReviewers = () => {
     setViewReviewerId(null);
   };
 
+  const handleVisitWeb = () => {
+    if (formData.web) {
+      window.open(formData.web, '_blank');
+    }
+  };
+
+  const handleEditVisitWeb = () => {
+    if (editFormData.web) {
+      window.open(editFormData.web, '_blank');
+    }
+  };
+
   const fetchReviewers = async () => {
     const q = searchQuery
       ? query(collection(db, "Reviewers"), where("Name", ">=", searchQuery), where("Name", "<=", searchQuery + '\uf8ff'))
@@ -274,7 +286,7 @@ const EditReviewers = () => {
                   onChange={handleChange}
                   className={styles.input}
                 />
-                <button type="button" className={styles.formButton}>Visitar web</button>
+                <button type="button" className={styles.formButton} onClick={handleVisitWeb}>Visitar web</button>
               </div>
             </div>
             <div className={styles.formGroup}>
@@ -347,7 +359,7 @@ const EditReviewers = () => {
                   onChange={handleEditChange}
                   className={styles.input}
                 />
-                <button type="button" className={styles.formButton}>Visitar web</button>
+                <button type="button" className={styles.formButton} onClick={handleEditVisitWeb}>Visitar web</button>
               </div>
             </div>
             <div className={styles.formGroup}>
