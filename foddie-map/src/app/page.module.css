@@ -49,6 +49,12 @@
   flex-direction: column; /* Alinea els elements verticalment */
 }
 
+/* Contenedor para inputs con botones */
+.inputWithButton {
+  display: flex;
+  align-items: center;
+}
+
 /* Contenedor para el input y la imagen de previsualización del avatar */
 .inputWithAvatar {
   display: flex;
@@ -69,6 +75,23 @@
   border-radius: 5px; /* Bordes arrodonides dels inputs */
   outline: none; /* Treu el borde de focus per defecte */
   transition: border-color 0.3s; /* Transició suau per al canvi de color del borde */
+  flex: 1;
+}
+
+/* Botón en los inputs */
+.formButton {
+  padding: 8px 12px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-left: 10px;
+  transition: background-color 0.3s;
+}
+
+.formButton:hover {
+  background-color: #005bb5;
 }
 
 /* Canvia el color del borde de l'input quan està enfocat */

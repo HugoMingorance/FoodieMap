@@ -226,7 +226,7 @@ const EditReviewers = () => {
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.formGroup}>
               <label htmlFor="avatarUrl">URL del Avatar</label>
-              <div className={styles.inputWithAvatar}>
+              <div className={styles.inputWithButton}>
                 <input
                   type="text"
                   id="avatarUrl"
@@ -240,14 +240,17 @@ const EditReviewers = () => {
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="lastVideoChecked">Last Video Checked</label>
-              <input
-                type="text"
-                id="lastVideoChecked"
-                name="lastVideoChecked"
-                value={formData.lastVideoChecked}
-                onChange={handleChange}
-                className={styles.input}
-              />
+              <div className={styles.inputWithButton}>
+                <input
+                  type="text"
+                  id="lastVideoChecked"
+                  name="lastVideoChecked"
+                  value={formData.lastVideoChecked}
+                  onChange={handleChange}
+                  className={styles.input}
+                />
+                <button type="button" className={styles.formButton}>Cargar últimos videos</button>
+              </div>
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="name">Name</label>
@@ -262,28 +265,107 @@ const EditReviewers = () => {
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="web">Web</label>
+              <div className={styles.inputWithButton}>
+                <input
+                  type="text"
+                  id="web"
+                  name="web"
+                  value={formData.web}
+                  onChange={handleChange}
+                  className={styles.input}
+                />
+                <button type="button" className={styles.formButton}>Visitar web</button>
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="channelId">Channel ID</label>
+              <div className={styles.inputWithButton}>
+                <input
+                  type="text"
+                  id="channelId"
+                  name="channelId"
+                  value={formData.channelId}
+                  onChange={handleChange}
+                  className={styles.input}
+                />
+                <button type="button" className={styles.formButton}>Obtener ChannelID</button>
+              </div>
+            </div>
+            <button type="submit" className={styles.submitButton}>Crear nuevo Reviewer</button>
+            {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
+          </form>
+        )}
+        {showEditForm && (
+          <form onSubmit={handleEditSubmit} className={styles.form}>
+            <div className={styles.formGroup}>
+              <label htmlFor="avatarUrl">URL del Avatar</label>
+              <div className={styles.inputWithButton}>
+                <input
+                  type="text"
+                  id="avatarUrl"
+                  name="avatarUrl"
+                  value={editFormData.avatarUrl}
+                  onChange={handleEditChange}
+                  className={styles.input}
+                />
+                {editAvatarPreviewUrl && <img src={editAvatarPreviewUrl} alt="Avatar Preview" className={styles.avatarPreview} />}
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="lastVideoChecked">Last Video Checked</label>
+              <div className={styles.inputWithButton}>
+                <input
+                  type="text"
+                  id="lastVideoChecked"
+                  name="lastVideoChecked"
+                  value={editFormData.lastVideoChecked}
+                  onChange={handleEditChange}
+                  className={styles.input}
+                />
+                <button type="button" className={styles.formButton}>Cargar últimos videos</button>
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="name">Name</label>
               <input
                 type="text"
-                id="web"
-                name="web"
-                value={formData.web}
-                onChange={handleChange}
+                id="name"
+                name="name"
+                value={editFormData.name}
+                onChange={handleEditChange}
                 className={styles.input}
               />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="channelId">Channel ID</label>
-              <input
-                type="text"
-                id="channelId"
-                name="channelId"
-                value={formData.channelId}
-                onChange={handleChange}
-                className={styles.input}
-              />
+              <label htmlFor="web">Web</label>
+              <div className={styles.inputWithButton}>
+                <input
+                  type="text"
+                  id="web"
+                  name="web"
+                  value={editFormData.web}
+                  onChange={handleEditChange}
+                  className={styles.input}
+                />
+                <button type="button" className={styles.formButton}>Visitar web</button>
+              </div>
             </div>
-            <button type="submit" className={styles.submitButton}>Crear nuevo Reviewer</button>
-            {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
+            <div className={styles.formGroup}>
+              <label htmlFor="channelId">Channel ID</label>
+              <div className={styles.inputWithButton}>
+                <input
+                  type="text"
+                  id="channelId"
+                  name="channelId"
+                  value={editFormData.channelId}
+                  onChange={handleEditChange}
+                  className={styles.input}
+                />
+                <button type="button" className={styles.formButton}>Obtener ChannelID</button>
+              </div>
+            </div>
+            <button type="submit" className={styles.submitButton}>Actualizar</button>
+            <button type="button" className={styles.cancelButton} onClick={handleCancelEdit}>Cancelar</button>
           </form>
         )}
         <div>
@@ -372,72 +454,6 @@ const EditReviewers = () => {
                       />
                     </div>
                     <button type="button" className={styles.cancelButton} onClick={handleHideClick}>Hide</button>
-                  </li>
-                )}
-                {showEditForm === reviewer.id && (
-                  <li key={`edit-${index}`} className={styles.editForm}>
-                    <form onSubmit={handleEditSubmit}>
-                      <div className={styles.formGroup}>
-                        <label htmlFor="avatarUrl">URL del Avatar</label>
-                        <div className={styles.inputWithAvatar}>
-                          <input
-                            type="text"
-                            id="avatarUrl"
-                            name="avatarUrl"
-                            value={editFormData.avatarUrl}
-                            onChange={handleEditChange}
-                            className={styles.input}
-                          />
-                          {editAvatarPreviewUrl && <img src={editAvatarPreviewUrl} alt="Avatar Preview" className={styles.avatarPreview} />}
-                        </div>
-                      </div>
-                      <div className={styles.formGroup}>
-                        <label htmlFor="lastVideoChecked">Last Video Checked</label>
-                        <input
-                          type="text"
-                          id="lastVideoChecked"
-                          name="lastVideoChecked"
-                          value={editFormData.lastVideoChecked}
-                          onChange={handleEditChange}
-                          className={styles.input}
-                        />
-                      </div>
-                      <div className={styles.formGroup}>
-                        <label htmlFor="name">Name</label>
-                        <input
-                          type="text"
-                          id="name"
-                          name="name"
-                          value={editFormData.name}
-                          onChange={handleEditChange}
-                          className={styles.input}
-                        />
-                      </div>
-                      <div className={styles.formGroup}>
-                        <label htmlFor="web">Web</label>
-                        <input
-                          type="text"
-                          id="web"
-                          name="web"
-                          value={editFormData.web}
-                          onChange={handleEditChange}
-                          className={styles.input}
-                        />
-                      </div>
-                      <div className={styles.formGroup}>
-                        <label htmlFor="channelId">Channel ID</label>
-                        <input
-                          type="text"
-                          id="channelId"
-                          name="channelId"
-                          value={editFormData.channelId}
-                          onChange={handleEditChange}
-                          className={styles.input}
-                        />
-                      </div>
-                      <button type="submit" className={styles.submitButton}>Actualizar</button>
-                      <button type="button" className={styles.cancelButton} onClick={handleCancelEdit}>Cancelar</button>
-                    </form>
                   </li>
                 )}
               </>
