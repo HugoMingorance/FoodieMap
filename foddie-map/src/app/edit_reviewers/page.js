@@ -118,24 +118,26 @@ const EditReviewers = () => {
     }
   };
 
-  const handleEditSubmit = async (e) => {
+  const handleEditSubmit = (e) => {
     e.preventDefault();
-    try {
-      const reviewerDoc = doc(db, "Reviewers", showEditForm);
-      await updateDoc(reviewerDoc, {
-        AvatarURL: editFormData.avatarUrl,
-        LastVideoIDChecked: editFormData.lastVideoChecked,
-        Name: editFormData.name,
-        Web: editFormData.web,
-        ChannelID: editFormData.channelId
-      });
-      setShowEditForm(null);
-      setEditAvatarPreviewUrl('');
-      setSuccessMessage('Se ha editado correctamente');
-      fetchReviewers(); // Actualizar la lista de reviewers después de la edición
-    } catch (e) {
-      console.error("Error updating document: ", e);
-    }
+    showPopupWithAction(async () => {
+      try {
+        const reviewerDoc = doc(db, "Reviewers", showEditForm);
+        await updateDoc(reviewerDoc, {
+          AvatarURL: editFormData.avatarUrl,
+          LastVideoIDChecked: editFormData.lastVideoChecked,
+          Name: editFormData.name,
+          Web: editFormData.web,
+          ChannelID: editFormData.channelId
+        });
+        setShowEditForm(null);
+        setEditAvatarPreviewUrl('');
+        setSuccessMessage('Se ha editado correctamente');
+        fetchReviewers(); // Actualizar la lista de reviewers después de la edición
+      } catch (e) {
+        console.error("Error updating document: ", e);
+      }
+    });
   };
 
   const handleDelete = (reviewerId) => {

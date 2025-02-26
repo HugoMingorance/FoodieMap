@@ -1,5 +1,3 @@
-Button confirmation, delete and update
-
 Appy keys ChannelID apartir del url
 
 imatge canviant
