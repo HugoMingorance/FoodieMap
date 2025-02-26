@@ -34,6 +34,8 @@ const EditReviewers = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [reviewersPerPage] = useState(2);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupAction, setPopupAction] = useState(null);
 
   useEffect(() => {
     fetchReviewers();
@@ -48,6 +50,23 @@ const EditReviewers = () => {
       });
     }
   }, []);
+
+  const showPopupWithAction = (action) => {
+    setPopupAction(() => action);
+    setShowPopup(true);
+  };
+
+  const hidePopup = () => {
+    setShowPopup(false);
+    setPopupAction(null);
+  };
+
+  const handleConfirmAction = async () => {
+    if (popupAction) {
+      await popupAction();
+    }
+    hidePopup();
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,14 +138,16 @@ const EditReviewers = () => {
     }
   };
 
-  const handleDelete = async (reviewerId) => {
-    try {
-      await deleteDoc(doc(db, "Reviewers", reviewerId));
-      setSuccessMessage('Se ha eliminado correctamente');
-      fetchReviewers(); // Actualizar la lista de reviewers después de eliminar uno
-    } catch (e) {
-      console.error("Error deleting document: ", e);
-    }
+  const handleDelete = (reviewerId) => {
+    showPopupWithAction(async () => {
+      try {
+        await deleteDoc(doc(db, "Reviewers", reviewerId));
+        setSuccessMessage('Se ha eliminado correctamente');
+        fetchReviewers(); // Actualizar la lista de reviewers después de eliminar uno
+      } catch (e) {
+        console.error("Error deleting document: ", e);
+      }
+    });
   };
 
   const handleAddNewClick = () => {
@@ -150,8 +171,10 @@ const EditReviewers = () => {
   };
 
   const handleCancelEdit = () => {
-    setShowEditForm(null);
-    setEditAvatarPreviewUrl('');
+    showPopupWithAction(() => {
+      setShowEditForm(null);
+      setEditAvatarPreviewUrl('');
+    });
   };
 
   const handleHideClick = () => {
@@ -420,6 +443,15 @@ const EditReviewers = () => {
           </ul>
         </div>
       </div>
+      {showPopup && (
+        <div className={styles.popupOverlay}>
+          <div className={styles.popup}>
+            <p>¿Estás seguro de que quieres realizar esta acción?</p>
+            <button className={styles.confirmButton} onClick={handleConfirmAction}>Confirmar</button>
+            <button className={styles.cancelButton} onClick={hidePopup}>Cancelar</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
