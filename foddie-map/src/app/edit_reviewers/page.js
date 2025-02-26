@@ -207,7 +207,7 @@ const EditReviewers = () => {
       if (data.items && data.items.length > 0) {
         return data.items[0].id.channelId;
       } else {
-        console.error('No se encontró el canal' + ' ' + username + ' ' + apiKeys.YOUTUBE_API_KEY + ' ' + `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${username}&key=${apiKeys.YOUTUBE_API_KEY}`);
+        console.error('No se encontró el canal' + ' ' + username + ' ' + apiKeys.YOUTUBE_API_KEY + ' ');
         return null;
       }
     } catch (error) {
