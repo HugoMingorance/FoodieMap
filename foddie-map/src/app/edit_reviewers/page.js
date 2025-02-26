@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import styles from '../page.module.css';
 import { app, db } from '../FirebaseConfig.js';
-import { collection, addDoc, getDocs, updateDoc, doc, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const EditReviewers = () => {
@@ -28,6 +28,7 @@ const EditReviewers = () => {
   const [editAvatarPreviewUrl, setEditAvatarPreviewUrl] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(null); // Estado para controlar el formulario de edición
+  const [viewReviewerId, setViewReviewerId] = useState(null); // Estado para controlar el formulario de visualización
   const [successMessage, setSuccessMessage] = useState('');
   const [reviewers, setReviewers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -118,8 +119,22 @@ const EditReviewers = () => {
     }
   };
 
+  const handleDelete = async (reviewerId) => {
+    try {
+      await deleteDoc(doc(db, "Reviewers", reviewerId));
+      setSuccessMessage('Se ha eliminado correctamente');
+      fetchReviewers(); // Actualizar la lista de reviewers después de eliminar uno
+    } catch (e) {
+      console.error("Error deleting document: ", e);
+    }
+  };
+
   const handleAddNewClick = () => {
     setShowForm(!showForm);
+  };
+
+  const handleViewClick = (reviewerId) => {
+    setViewReviewerId(reviewerId);
   };
 
   const handleEditClick = (reviewer) => {
@@ -137,6 +152,10 @@ const EditReviewers = () => {
   const handleCancelEdit = () => {
     setShowEditForm(null);
     setEditAvatarPreviewUrl('');
+  };
+
+  const handleHideClick = () => {
+    setViewReviewerId(null);
   };
 
   const fetchReviewers = async () => {
@@ -272,11 +291,64 @@ const EditReviewers = () => {
                   <div className={styles.reviewerName}>{reviewer.Name}</div>
                   <div className={styles.reviewerDate}>{new Date(reviewer.createdAt.seconds * 1000).toLocaleString()}</div>
                   <div className={styles.reviewerButtons}>
-                    <button className={styles.viewButton}>👁️ Ver</button>
+                    <button className={styles.viewButton} onClick={() => handleViewClick(reviewer.id)}>👁️ Ver</button>
                     <button className={styles.editButton} onClick={() => handleEditClick(reviewer)}>✏️ Editar</button>
-                    <button className={styles.deleteButton}>❌ Eliminar</button>
+                    <button className={styles.deleteButton} onClick={() => handleDelete(reviewer.id)}>❌ Eliminar</button>                  
                   </div>
                 </li>
+                {viewReviewerId === reviewer.id && (
+                  <li key={`view-${index}`} className={styles.viewForm}>
+                    <div className={styles.formGroup}>
+                      <label>URL del Avatar</label>
+                      <div className={styles.inputWithAvatar}>
+                        <input
+                          type="text"
+                          value={reviewer.AvatarURL}
+                          readOnly
+                          className={styles.input}
+                        />
+                        <img src={reviewer.AvatarURL} alt="Avatar Preview" className={styles.avatarPreview} />
+                      </div>
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label>Last Video Checked</label>
+                      <input
+                        type="text"
+                        value={reviewer.LastVideoIDChecked}
+                        readOnly
+                        className={styles.input}
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label>Name</label>
+                      <input
+                        type="text"
+                        value={reviewer.Name}
+                        readOnly
+                        className={styles.input}
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label>Web</label>
+                      <input
+                        type="text"
+                        value={reviewer.Web}
+                        readOnly
+                        className={styles.input}
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label>Channel ID</label>
+                      <input
+                        type="text"
+                        value={reviewer.ChannelID}
+                        readOnly
+                        className={styles.input}
+                      />
+                    </div>
+                    <button type="button" className={styles.cancelButton} onClick={handleHideClick}>Hide</button>
+                  </li>
+                )}
                 {showEditForm === reviewer.id && (
                   <li key={`edit-${index}`} className={styles.editForm}>
                     <form onSubmit={handleEditSubmit}>
