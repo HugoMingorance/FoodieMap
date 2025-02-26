@@ -6,6 +6,7 @@ import styles from '../page.module.css';
 import { app, db } from '../FirebaseConfig.js';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
+import apiKeys from '../../utils/apiKeys';
 
 const EditReviewers = () => {
   const [formData, setFormData] = useState({
@@ -195,6 +196,46 @@ const EditReviewers = () => {
     }
   };
 
+  const getChannelId = async (url) => {
+    try {
+      // Extraer el nombre de usuario o ID del canal de la URL
+      const matches = url.match(/\/@([^\/]+)\/?/);
+      const username = matches ? matches[1] : url;
+  
+      const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${username}&key=${apiKeys.YOUTUBE_API_KEY}`);
+      const data = await response.json();
+      if (data.items && data.items.length > 0) {
+        return data.items[0].id.channelId;
+      } else {
+        console.error('No se encontró el canal' + ' ' + username + ' ' + apiKeys.YOUTUBE_API_KEY + ' ' + `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${username}&key=${apiKeys.YOUTUBE_API_KEY}`);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error al obtener el Channel ID:', error);
+      return null;
+    }
+  };
+
+  const handleGetChannelId = async () => {
+    const channelId = await getChannelId(formData.web);
+    if (channelId) {
+      setFormData({
+        ...formData,
+        channelId,
+      });
+    }
+  };
+
+  const handleEditGetChannelId = async () => {
+    const channelId = await getChannelId(editFormData.web);
+    if (channelId) {
+      setEditFormData({
+        ...editFormData,
+        channelId,
+      });
+    }
+  };
+
   const fetchReviewers = async () => {
     const q = searchQuery
       ? query(collection(db, "Reviewers"), where("Name", ">=", searchQuery), where("Name", "<=", searchQuery + '\uf8ff'))
@@ -300,7 +341,7 @@ const EditReviewers = () => {
                   onChange={handleChange}
                   className={styles.input}
                 />
-                <button type="button" className={styles.formButton}>Obtener ChannelID</button>
+                <button type="button" className={styles.formButton} onClick={handleGetChannelId}>Obtener ChannelID</button>
               </div>
             </div>
             <button type="submit" className={styles.submitButton}>Crear nuevo Reviewer</button>
@@ -373,7 +414,7 @@ const EditReviewers = () => {
                   onChange={handleEditChange}
                   className={styles.input}
                 />
-                <button type="button" className={styles.formButton}>Obtener ChannelID</button>
+                <button type="button" className={styles.formButton} onClick={handleEditGetChannelId}>Obtener ChannelID</button>
               </div>
             </div>
             <button type="submit" className={styles.submitButton}>Actualizar</button>
