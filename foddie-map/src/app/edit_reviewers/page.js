@@ -37,6 +37,7 @@ const EditReviewers = () => {
   const [reviewersPerPage] = useState(2);
   const [showPopup, setShowPopup] = useState(false);
   const [popupAction, setPopupAction] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     fetchReviewers();
@@ -93,6 +94,13 @@ const EditReviewers = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Verificar si los campos nombre y web están vacíos
+    if (!formData.name || !formData.web) {
+      setErrorMessage('Siusplau, omple els camps de nom i web');
+      return;
+    }
+  
     try {
       const docRef = await addDoc(collection(db, "Reviewers"), {
         AvatarURL: formData.avatarUrl,
@@ -112,6 +120,7 @@ const EditReviewers = () => {
         channelId: ''
       });
       setAvatarPreviewUrl('');
+      setErrorMessage(''); // Limpiar el mensaje de error
       setSuccessMessage('Se ha añadido correctamente');
       fetchReviewers(); // Actualizar la lista de reviewers después de añadir uno nuevo
     } catch (e) {
@@ -276,78 +285,79 @@ const EditReviewers = () => {
           {showForm ? 'Cancelar' : 'Añadir nueva entrada'}
         </button>
         {showForm && (
-          <form onSubmit={handleSubmit} className={styles.form}>
-            <div className={styles.formGroup}>
-              <label htmlFor="avatarUrl">URL del Avatar</label>
-              <div className={styles.inputWithButton}>
-                <input
-                  type="text"
-                  id="avatarUrl"
-                  name="avatarUrl"
-                  value={formData.avatarUrl}
-                  onChange={handleChange}
-                  className={styles.input}
-                />
-                {avatarPreviewUrl && <img src={avatarPreviewUrl} alt="Avatar Preview" className={styles.avatarPreview} />}
-              </div>
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="lastVideoChecked">Last Video Checked</label>
-              <div className={styles.inputWithButton}>
-                <input
-                  type="text"
-                  id="lastVideoChecked"
-                  name="lastVideoChecked"
-                  value={formData.lastVideoChecked}
-                  onChange={handleChange}
-                  className={styles.input}
-                />
-                <button type="button" className={styles.formButton}>Cargar últimos videos</button>
-              </div>
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="name">Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className={styles.input}
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="web">Web</label>
-              <div className={styles.inputWithButton}>
-                <input
-                  type="text"
-                  id="web"
-                  name="web"
-                  value={formData.web}
-                  onChange={handleChange}
-                  className={styles.input}
-                />
-                <button type="button" className={styles.formButton} onClick={handleVisitWeb}>Visitar web</button>
-              </div>
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="channelId">Channel ID</label>
-              <div className={styles.inputWithButton}>
-                <input
-                  type="text"
-                  id="channelId"
-                  name="channelId"
-                  value={formData.channelId}
-                  onChange={handleChange}
-                  className={styles.input}
-                />
-                <button type="button" className={styles.formButton} onClick={handleGetChannelId}>Obtener ChannelID</button>
-              </div>
-            </div>
-            <button type="submit" className={styles.submitButton}>Crear nuevo Reviewer</button>
-            {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
-          </form>
-        )}
+  <form onSubmit={handleSubmit} className={styles.form}>
+    {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
+    <div className={styles.formGroup}>
+      <label htmlFor="avatarUrl">URL del Avatar</label>
+      <div className={styles.inputWithButton}>
+        <input
+          type="text"
+          id="avatarUrl"
+          name="avatarUrl"
+          value={formData.avatarUrl}
+          onChange={handleChange}
+          className={styles.input}
+        />
+        {avatarPreviewUrl && <img src={avatarPreviewUrl} alt="Avatar Preview" className={styles.avatarPreview} />}
+      </div>
+    </div>
+    <div className={styles.formGroup}>
+      <label htmlFor="lastVideoChecked">Last Video Checked</label>
+      <div className={styles.inputWithButton}>
+        <input
+          type="text"
+          id="lastVideoChecked"
+          name="lastVideoChecked"
+          value={formData.lastVideoChecked}
+          onChange={handleChange}
+          className={styles.input}
+        />
+        <button type="button" className={styles.formButton}>Cargar últimos videos</button>
+      </div>
+    </div>
+    <div className={styles.formGroup}>
+      <label htmlFor="name">Name</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+        className={styles.input}
+      />
+    </div>
+    <div className={styles.formGroup}>
+      <label htmlFor="web">Web</label>
+      <div className={styles.inputWithButton}>
+        <input
+          type="text"
+          id="web"
+          name="web"
+          value={formData.web}
+          onChange={handleChange}
+          className={styles.input}
+        />
+        <button type="button" className={styles.formButton} onClick={handleVisitWeb}>Visitar web</button>
+      </div>
+    </div>
+    <div className={styles.formGroup}>
+      <label htmlFor="channelId">Channel ID</label>
+      <div className={styles.inputWithButton}>
+        <input
+          type="text"
+          id="channelId"
+          name="channelId"
+          value={formData.channelId}
+          onChange={handleChange}
+          className={styles.input}
+        />
+        <button type="button" className={styles.formButton} onClick={handleGetChannelId}>Obtener ChannelID</button>
+      </div>
+    </div>
+    <button type="submit" className={styles.submitButton}>Crear nuevo Reviewer</button>
+    {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
+  </form>
+)}
         {showEditForm && (
           <form onSubmit={handleEditSubmit} className={styles.form}>
             <div className={styles.formGroup}>
