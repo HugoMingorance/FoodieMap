@@ -127,19 +127,23 @@ const EditReviewers = () => {
       console.error("Error adding document: ", e);
     }
   };
-
-  const handleEditSubmit = (e) => {
+  
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
     showPopupWithAction(async () => {
       try {
-        const reviewerDoc = doc(db, "Reviewers", showEditForm);
-        await updateDoc(reviewerDoc, {
-          AvatarURL: editFormData.avatarUrl,
-          LastVideoIDChecked: editFormData.lastVideoChecked,
-          Name: editFormData.name,
-          Web: editFormData.web,
-          ChannelID: editFormData.channelId
-        });
+        const reviewerDoc = query(collection(db, "Reviewers"), where("ChannelID", "==", editFormData.channelId));
+        const reviewerSnapshot = await getDocs(reviewerDoc);
+        if (!reviewerSnapshot.empty) {
+          const reviewerRef = reviewerSnapshot.docs[0].ref;
+          await updateDoc(reviewerRef, {
+            AvatarURL: editFormData.avatarUrl,
+            LastVideoIDChecked: editFormData.lastVideoChecked,
+            Name: editFormData.name,
+            Web: editFormData.web,
+            ChannelID: editFormData.channelId
+          });
+        }
         setShowEditForm(null);
         setEditAvatarPreviewUrl('');
         setSuccessMessage('Se ha editado correctamente');
@@ -285,12 +289,12 @@ const EditReviewers = () => {
       alert("No video ID found in the lastVideoChecked field.");
       return;
     }
-
+  
     const videosCollection = collection(db, "VideosToEdit");
     let nextPageToken = "";
     let hasMoreVideos = true;
     let lastVideoDate;
-
+  
     // Primera petición para obtener la fecha de publicación del lastVideoId
     const initialUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${lastVideoId}&key=${apiKeys.YOUTUBE_API_KEY}`;
     try {
@@ -308,15 +312,15 @@ const EditReviewers = () => {
       alert("Failed to fetch initial video data.");
       return;
     }
-
+  
     while (hasMoreVideos) {
       const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${data.channelId}&maxResults=10&order=date&pageToken=${nextPageToken}&key=${apiKeys.YOUTUBE_API_KEY}`;
       console.log("Fetching videos with URL:", url);
-
+  
       try {
         const response = await fetch(url);
         const jsonData = await response.json();
-
+  
         if (jsonData.items && jsonData.items.length > 0) {
           for (const item of jsonData.items) {
             const videoDate = new Date(item.snippet.publishedAt);
@@ -324,13 +328,21 @@ const EditReviewers = () => {
               hasMoreVideos = false;
               break;
             }
-
+  
             if (!data.channelId) {
               console.error("Reviewer channel ID is missing");
               alert("Reviewer channel ID is missing");
               return;
             }
-
+  
+            // Comprobar si el video ya existe en la base de datos
+            const existingVideosQuery = query(videosCollection, where("PlatformReviewId", "==", item.id.videoId));
+            const existingVideosSnapshot = await getDocs(existingVideosQuery);
+            if (!existingVideosSnapshot.empty) {
+              console.log(`Video with ID ${item.id.videoId} already exists in the database.`);
+              continue; // Saltar este video si ya existe
+            }
+  
             const videoData = {
               PlatformReviewId: item.id.videoId,
               publishDate: item.snippet.publishedAt,
@@ -340,13 +352,11 @@ const EditReviewers = () => {
             };
             await addDoc(videosCollection, videoData);
           }
-
-          // Actualizar el campo lastVideoChecked del reviewer con el último videoId obtenido
+  
+          // Actualizar el campo lastVideoChecked del formulario con el último videoId obtenido
           lastVideoId = jsonData.items[jsonData.items.length - 1].id.videoId;
-          const reviewerDoc = doc(db, "Reviewers", data.channelId);
-          await updateDoc(reviewerDoc, { lastVideoChecked: lastVideoId });
           data.lastVideoChecked = lastVideoId;  // Actualizar el estado del formulario
-
+  
           // Si hay un nextPageToken, continuar con la siguiente página
           if (jsonData.nextPageToken) {
             nextPageToken = jsonData.nextPageToken;
@@ -362,10 +372,10 @@ const EditReviewers = () => {
         hasMoreVideos = false;
       }
     }
-
+  
     alert("Recent videos loaded and saved successfully!");
   };
-
+  
   return (
     <div className={styles.container}>
       <Sidebar />
