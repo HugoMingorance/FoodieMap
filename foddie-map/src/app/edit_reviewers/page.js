@@ -276,6 +276,90 @@ const EditReviewers = () => {
     pageNumbers.push(i);
   }
 
+  const loadRecentVideos = async () => {
+    const data = showEditForm ? editFormData : formData;
+    let lastVideoId = data.lastVideoChecked;
+    console.log("lastVideoChecked:", data.lastVideoChecked);
+    console.log("lastVideoId:", lastVideoId);
+    if (!lastVideoId) {
+      alert("No video ID found in the lastVideoChecked field.");
+      return;
+    }
+
+    const videosCollection = collection(db, "VideosToEdit");
+    let nextPageToken = "";
+    let hasMoreVideos = true;
+    let lastVideoDate;
+
+    // Primera petición para obtener la fecha de publicación del lastVideoId
+    const initialUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${lastVideoId}&key=${apiKeys.YOUTUBE_API_KEY}`;
+    try {
+      const initialResponse = await fetch(initialUrl);
+      const initialData = await initialResponse.json();
+      if (initialData.items && initialData.items.length > 0) {
+        lastVideoDate = new Date(initialData.items[0].snippet.publishedAt);
+        console.log("lastVideoDate:", lastVideoDate);
+      } else {
+        alert("Failed to fetch the initial video data.");
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching initial video data:", error);
+      alert("Failed to fetch initial video data.");
+      return;
+    }
+
+    while (hasMoreVideos) {
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${data.channelId}&maxResults=10&order=date&pageToken=${nextPageToken}&key=${apiKeys.YOUTUBE_API_KEY}`;
+      console.log("Fetching videos with URL:", url);
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+          for (const item of data.items) {
+            const videoDate = new Date(item.snippet.publishedAt);
+            if (videoDate <= lastVideoDate) {
+              hasMoreVideos = false;
+              break;
+            }
+
+            const videoData = {
+              PlatformReviewId: item.id.videoId,
+              publishDate: item.snippet.publishedAt,
+              ReviewerId: data.id,
+              Title: item.snippet.title,
+              Type: "YouTube",
+            };
+            await addDoc(videosCollection, videoData);
+          }
+
+          // Actualizar el campo lastVideoChecked del reviewer con el último videoId obtenido
+          lastVideoId = data.items[data.items.length - 1].id.videoId;
+          const reviewerDoc = doc(db, "Reviewers", data.id);
+          await updateDoc(reviewerDoc, { lastVideoChecked: lastVideoId });
+          data.lastVideoChecked = lastVideoId;  // Actualizar el estado del formulario
+
+          // Si hay un nextPageToken, continuar con la siguiente página
+          if (data.nextPageToken) {
+            nextPageToken = data.nextPageToken;
+          } else {
+            hasMoreVideos = false;
+          }
+        } else {
+          hasMoreVideos = false;
+        }
+      } catch (error) {
+        console.error("Error fetching recent videos:", error);
+        alert("Failed to fetch recent videos.");
+        hasMoreVideos = false;
+      }
+    }
+
+    alert("Recent videos loaded and saved successfully!");
+  };
+
   return (
     <div className={styles.container}>
       <Sidebar />
@@ -312,8 +396,7 @@ const EditReviewers = () => {
           onChange={handleChange}
           className={styles.input}
         />
-        <button type="button" className={styles.formButton}>Cargar últimos videos</button>
-      </div>
+      <button type="button" className={styles.formButton} onClick={loadRecentVideos}>Cargar últimos videos</button>      </div>
     </div>
     <div className={styles.formGroup}>
       <label htmlFor="name">Name</label>
@@ -385,8 +468,7 @@ const EditReviewers = () => {
                   onChange={handleEditChange}
                   className={styles.input}
                 />
-                <button type="button" className={styles.formButton}>Cargar últimos videos</button>
-              </div>
+              <button type="button" className={styles.formButton} onClick={loadRecentVideos}>Cargar últimos videos</button>              </div>
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="name">Name</label>
