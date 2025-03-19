@@ -315,20 +315,26 @@ const EditReviewers = () => {
 
       try {
         const response = await fetch(url);
-        const data = await response.json();
+        const jsonData = await response.json();
 
-        if (data.items && data.items.length > 0) {
-          for (const item of data.items) {
+        if (jsonData.items && jsonData.items.length > 0) {
+          for (const item of jsonData.items) {
             const videoDate = new Date(item.snippet.publishedAt);
             if (videoDate <= lastVideoDate) {
               hasMoreVideos = false;
               break;
             }
 
+            if (!data.channelId) {
+              console.error("Reviewer channel ID is missing");
+              alert("Reviewer channel ID is missing");
+              return;
+            }
+
             const videoData = {
               PlatformReviewId: item.id.videoId,
               publishDate: item.snippet.publishedAt,
-              ReviewerId: data.id,
+              ReviewerId: data.channelId,
               Title: item.snippet.title,
               Type: "YouTube",
             };
@@ -336,14 +342,14 @@ const EditReviewers = () => {
           }
 
           // Actualizar el campo lastVideoChecked del reviewer con el último videoId obtenido
-          lastVideoId = data.items[data.items.length - 1].id.videoId;
-          const reviewerDoc = doc(db, "Reviewers", data.id);
+          lastVideoId = jsonData.items[jsonData.items.length - 1].id.videoId;
+          const reviewerDoc = doc(db, "Reviewers", data.channelId);
           await updateDoc(reviewerDoc, { lastVideoChecked: lastVideoId });
           data.lastVideoChecked = lastVideoId;  // Actualizar el estado del formulario
 
           // Si hay un nextPageToken, continuar con la siguiente página
-          if (data.nextPageToken) {
-            nextPageToken = data.nextPageToken;
+          if (jsonData.nextPageToken) {
+            nextPageToken = jsonData.nextPageToken;
           } else {
             hasMoreVideos = false;
           }
