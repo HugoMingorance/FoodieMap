@@ -8,15 +8,17 @@ import { collection, getDocs, query, where, deleteDoc, doc } from "firebase/fire
 
 const EditVideos = () => {
   const [videos, setVideos] = useState([]);
+  const [reviewers, setReviewers] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [videosPerPage] = useState(10); // Número de vídeos per pàgina
+  const [videosPerPage] = useState(5); // Número de vídeos per pàgina
   const [successMessage, setSuccessMessage] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [popupAction, setPopupAction] = useState(null);
   const [viewVideoId, setViewVideoId] = useState(null); // Estado para controlar el formulario de visualización
 
   useEffect(() => {
+    fetchReviewers();
     fetchVideos();
   }, [searchQuery]);
 
@@ -35,6 +37,19 @@ const EditVideos = () => {
       await popupAction();
     }
     hidePopup();
+  };
+
+  const fetchReviewers = async () => {
+    const reviewersSnapshot = await getDocs(collection(db, "Reviewers"));
+    const reviewersData = {};
+    reviewersSnapshot.forEach(doc => {
+      const data = doc.data();
+      reviewersData[data.ChannelID] = {
+        name: data.Name,
+        avatarUrl: data.AvatarURL
+      };
+    });
+    setReviewers(reviewersData);
   };
 
   const fetchVideos = async () => {
@@ -132,37 +147,24 @@ const EditVideos = () => {
               {viewVideoId === video.id && (
                 <li key={`view-${index}`} className={styles.viewForm}>
                   <div className={styles.formGroup}>
+                    <label>Reviewer</label>
+                    <div className={styles.inputWithAvatar}>
+                      <input
+                        type="text"
+                        value={reviewers[video.ReviewerId]?.name || 'Desconocido'}
+                        readOnly
+                        className={styles.input}
+                      />
+                      {reviewers[video.ReviewerId]?.avatarUrl && (
+                        <img src={reviewers[video.ReviewerId].avatarUrl} alt="Avatar" className={styles.avatarPreview} />
+                      )}
+                    </div>
+                  </div>
+                  <div className={styles.formGroup}>
                     <label>Title</label>
                     <input
                       type="text"
                       value={video.Title}
-                      readOnly
-                      className={styles.input}
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Platform Review ID</label>
-                    <input
-                      type="text"
-                      value={video.PlatformReviewId}
-                      readOnly
-                      className={styles.input}
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Reviewer ID</label>
-                    <input
-                      type="text"
-                      value={video.ReviewerId}
-                      readOnly
-                      className={styles.input}
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Type</label>
-                    <input
-                      type="text"
-                      value={video.Type}
                       readOnly
                       className={styles.input}
                     />
@@ -174,6 +176,14 @@ const EditVideos = () => {
                       value={new Date(video.publishDate).toISOString().split("T")[0]}
                       readOnly
                       className={styles.input}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Transcription</label>
+                    <textarea
+                      value={video.Transcription || 'No hay transcripción disponible'}
+                      readOnly
+                      className={styles.textarea}
                     />
                   </div>
                   <div className={styles.formGroup}>
