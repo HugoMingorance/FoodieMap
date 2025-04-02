@@ -176,6 +176,19 @@ const EditVideos = () => {
                       className={styles.input}
                     />
                   </div>
+                  <div className={styles.formGroup}>
+                    <label>Video</label>
+                    <div className={styles.videoContainer}>
+                      <iframe
+                        width="560"
+                        height="315"
+                        src={`https://www.youtube.com/embed/${video.PlatformReviewId}`}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  </div>
                   <button type="button" className={styles.cancelButton} onClick={handleHideClick}>Hide</button>
                 </li>
               )}
