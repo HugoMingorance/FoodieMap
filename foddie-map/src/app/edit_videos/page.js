@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar';
 import styles from '../page.module.css';
 import { db } from '../FirebaseConfig.js';
 import { collection, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
+import { searchPlaces } from '../../utils/googlePlacesService.js';
 
 const EditVideos = () => {
   const [videos, setVideos] = useState([]);
@@ -107,6 +108,26 @@ const EditVideos = () => {
       ...newReviewFormData,
       [name]: value
     });
+  };
+
+  const handleSearchGooglePlaceId = async () => {
+    const query = newReviewFormData.restaurantDescription.trim(); // Usar el campo de descripción
+  
+    if (!query) {
+      alert("Por favor, introduce una descripción del restaurante para buscar.");
+      return;
+    }
+  
+    try {
+      const results = await searchPlaces(query);
+      console.log("Resultados de búsqueda de Google Places:", results);
+      // Puedes añadir lógica aquí para manejar los resultados obtenidos.
+      // Por ejemplo: mostrar una lista de opciones al usuario.
+      alert(`Resultados obtenidos: ${JSON.stringify(results)}`);
+    } catch (error) {
+      console.error("Error buscando Google Place ID:", error);
+      alert("Hubo un problema al buscar el Google Place ID.");
+    }
   };
 
   // Obtener los vídeos actuales
@@ -250,6 +271,13 @@ const EditVideos = () => {
                           onChange={handleNewReviewFormChange}
                           className={styles.input}
                         />
+                        <button
+                          type="button"
+                          onClick={handleSearchGooglePlaceId}
+                          className={styles.formButton}
+                        >
+                          Obtenir dades de GooglePlace ID
+                        </button>
                       </div>
                       <div className={styles.formGroup}>
                         <label>Nombre del restaurante</label>
