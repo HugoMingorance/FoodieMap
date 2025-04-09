@@ -16,6 +16,11 @@ const EditVideos = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupAction, setPopupAction] = useState(null);
   const [viewVideoId, setViewVideoId] = useState(null); // Estado para controlar el formulario de visualización
+  const [newReviewFormVisible, setNewReviewFormVisible] = useState(false);
+  const [newReviewFormData, setNewReviewFormData] = useState({startSecond: '', restaurantName: '', restaurantDescription: '', restaurantGooglePlaceId: '', restaurantDirection: '',
+    restaurantPhone:'', restaurantWebsite:'', restaurantFichaTripadvisor:'', restaurantFichaGoogleMaps:'', restaurantRatingGoolgeMaps:'', restaurantReviewesGoogleMaps:'', 
+    restaurantPriceLevelGoogleMaps: '', restaurantImage:'',restaurantState:'',
+  });
 
   useEffect(() => {
     fetchReviewers();
@@ -92,6 +97,18 @@ const EditVideos = () => {
     setViewVideoId(null);
   };
 
+  const handleNewReviewClick = () => {
+    setNewReviewFormVisible(!newReviewFormVisible);
+  };
+  
+  const handleNewReviewFormChange = (e) => {
+    const { name, value } = e.target;
+    setNewReviewFormData({
+      ...newReviewFormData,
+      [name]: value
+    });
+  };
+
   // Obtener los vídeos actuales
   const indexOfLastVideo = currentPage * videosPerPage;
   const indexOfFirstVideo = indexOfLastVideo - videosPerPage;
@@ -140,7 +157,6 @@ const EditVideos = () => {
                 </div>
                 <div className={styles.reviewerButtons}>
                   <button className={styles.viewButton} onClick={() => handleViewClick(video.id)}>👁️ Ver</button>
-                  <button className={styles.editButton}>✏️ Editar</button>
                   <button className={styles.deleteButton} onClick={() => handleDelete(video.id)}>❌ Eliminar</button>
                 </div>
               </li>
@@ -199,7 +215,161 @@ const EditVideos = () => {
                       ></iframe>
                     </div>
                   </div>
-                  <button type="button" className={styles.cancelButton} onClick={handleHideClick}>Hide</button>
+                  <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'flex-start', alignItems: 'baseline', alignContent: 'stretch', gap: '10px'}}>
+                    <button type="button" className={styles.newReviewButton} onClick={handleNewReviewClick}>Crear review manualmente</button>
+                    <button type="button" className={styles.cancelButton} onClick={handleHideClick}>Hide</button>
+                  </div>
+                  {newReviewFormVisible && (
+                    <form className={styles.form}>
+                      <div className={styles.formGroup}>
+                        <label>Segundo de inicio</label>
+                        <input
+                          type="number"
+                          name="startSecond"
+                          value={newReviewFormData.startSecond}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Descripción del restaurante</label>
+                        <input
+                          type="text"
+                          name="restaurantDescription"
+                          value={newReviewFormData.restaurantDescription}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Google Place ID</label>
+                        <input
+                          type="text"
+                          name="restaurantGooglePlaceId"
+                          value={newReviewFormData.restaurantGooglePlaceId}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Nombre del restaurante</label>
+                        <input
+                          type="text"
+                          name="restaurantName"
+                          value={newReviewFormData.restaurantName}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Dirección</label>
+                        <input
+                          type="text"
+                          name="restaurantDirection"
+                          value={newReviewFormData.restaurantDirection}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Teléfono</label>
+                        <input
+                          type="text"
+                          name="restaurantPhone"
+                          value={newReviewFormData.restaurantPhone}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Sitio web</label>
+                        <input
+                          type="text"
+                          name="restaurantWebsite"
+                          value={newReviewFormData.restaurantWebsite}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Ficha Tripadvisor</label>
+                        <input
+                          type="text"
+                          name="restaurantFichaTripadvisor"
+                          value={newReviewFormData.restaurantFichaTripadvisor}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Ficha Google Maps</label>
+                        <input
+                          type="text"
+                          name="restaurantFichaGoogleMaps"
+                          value={newReviewFormData.restaurantFichaGoogleMaps}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Rating Google Maps</label>
+                        <input
+                          type="text"
+                          name="restaurantRatingGoolgeMaps"
+                          value={newReviewFormData.restaurantRatingGoolgeMaps}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Reviews Google Maps</label>
+                        <input
+                          type="text"
+                          name="restaurantReviewesGoogleMaps"
+                          value={newReviewFormData.restaurantReviewesGoogleMaps}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Precio Google Maps</label>
+                        <input
+                          type="text"
+                          name="restaurantPriceLevelGoogleMaps"
+                          value={newReviewFormData.restaurantPriceLevelGoogleMaps}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Imagen</label>
+                        <input
+                          type="text"
+                          name="restaurantImage"
+                          value={newReviewFormData.restaurantImage}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Estado</label>
+                        <input
+                          type="text"
+                          name="restaurantState"
+                          value={newReviewFormData.restaurantState}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className={styles.cancelButton}
+                        onClick={handleNewReviewClick}
+                      >
+                        Cancelar
+                      </button>
+                    </form>
+                  )}
                 </li>
               )}
             </>

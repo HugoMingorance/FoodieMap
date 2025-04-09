@@ -138,6 +138,26 @@
   background-color: #c82333; /* Color de fons quan es passa per sobre */
 }
 
+/* Botó de cancel·lació del formulari amb padding, estil de la font i bordes */
+.newReviewButton {
+  padding: 12px 20px;  /*Espai intern del botó */
+  font-size: 16px; /* Mida de la lletra del botó */
+  background-color: #3700ff; /* Color de fons del botó */
+  color: white; /* Color del text del botó */
+  border: none; /* Sense bordes */
+  cursor: pointer; /* Cursor de mà quan es passa per sobre */
+  border-radius: 5px; /* Bordes arrodonides */
+  transition: background-color 0.3s; /* Transició suau per al canvi de color de fons */
+  align-self: flex-start; /* Alinea el botó a l'esquerra */
+  max-width: 300px; /* Amplada màxima per al botó */
+  margin-top: 10px; /* Espai superior */
+}
+
+/* Canvia el color de fons del botó quan el ratolí està sobre ell */
+.newReviewButton:hover {
+  background-color: #2700b6; /* Color de fons quan es passa per sobre */
+}
+
 .successMessage {
   color: green;
   font-weight: 700;
