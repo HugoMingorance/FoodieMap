@@ -220,7 +220,7 @@ const EditVideos = () => {
                     <button type="button" className={styles.cancelButton} onClick={handleHideClick}>Hide</button>
                   </div>
                   {newReviewFormVisible && (
-                    <form className={styles.form}>
+                    <form className={styles.newReviewForm}>
                       <div className={styles.formGroup}>
                         <label>Segundo de inicio</label>
                         <input

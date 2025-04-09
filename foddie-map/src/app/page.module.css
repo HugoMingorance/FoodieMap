@@ -29,6 +29,22 @@
   background-color: #005bb5; /* Color de fons quan es passa per sobre */
 }
 
+.newReviewForm {
+  display: flex;
+  flex-direction: column; /* Alinea los elementos verticalmente */
+  gap: 20px; /* Espacio entre los elementos */
+  padding: 20px; /* Espaciado interno */
+  background-color: #f9f9f9; /* Color de fondo */
+  border: 1px solid #ddd; /* Borde */
+  border-radius: 10px; /* Bordes redondeados */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra */
+  max-width: 800px; /* Ancho máximo */
+  width: 100%; /* Ocupa el 100% del contenedor */
+  align-self: center; /* Centra el formulario horizontalmente */
+  margin: 20px auto; /* Centra el formulario y añade margen superior/inferior */
+  text-align: left; /* Alineación del texto */
+}
+
 /* Formulari que utilitza flexbox per a alinear els seus elements verticalment */
 .form {
   display: flex;
