@@ -20,7 +20,7 @@ const EditVideos = () => {
   const [newReviewFormVisible, setNewReviewFormVisible] = useState(false);
   const [newReviewFormData, setNewReviewFormData] = useState({startSecond: '', restaurantName: '', restaurantDescription: '', restaurantGooglePlaceId: '', restaurantDirection: '',
     restaurantPhone:'', restaurantWebsite:'', restaurantFichaTripadvisor:'', restaurantFichaGoogleMaps:'', restaurantRatingGoolgeMaps:'', restaurantReviewesGoogleMaps:'', 
-    restaurantPriceLevelGoogleMaps: '', restaurantImage:'',restaurantState:'',
+    restaurantPriceLevelGoogleMaps: '', restaurantImage:'',restaurantState:'', lon:'', lat: '',
   });
   const [places, setPlaces] = useState([]); // Estado para almacenar las places devueltas por la búsqueda
   const [details, setDetails] = useState([]);
@@ -130,20 +130,41 @@ const EditVideos = () => {
   };
 
   const handleSearchGooglePlaceId = async (query) => {
-    console.log("Buscando Google Place ID:");
-    const detailsResult = await getPlaceDetails(query)
-    console.log("Detalles del lugar:", detailsResult);
-    setDetails(detailsResult);
-    console.log(details.displayName);
-    newReviewFormData.restaurantName = details.displayName.text;
-    newReviewFormData.restaurantDirection = details.formattedAddress;
-    newReviewFormData.restaurantPhone = details.internationalPhoneNumber;
-    newReviewFormData.restaurantFichaGoogleMaps = details.googleMapsUri;
-    newReviewFormData.restaurantRatingGoolgeMaps = details.rating;
-    newReviewFormData.restaurantReviewesGoogleMaps = details.userRatingCount;
-    newReviewFormData.restaurantPriceLevelGoogleMaps = details.priceLevel;
-    newReviewFormData.restaurantState = details.businessStatus;  
-  }
+    try {
+      console.log("Buscando Google Place ID:");
+      const detailsResult = await getPlaceDetails(query);
+      console.log("Detalles del lugar:", detailsResult);
+  
+      // Verificar que el objeto tiene la estructura esperada antes de continuar
+      if (detailsResult) {
+        setDetails(detailsResult); // Actualizar el estado (opcional)
+        updateFormData(detailsResult); // Pasar el resultado directamente a la función
+      } else {
+        console.error("El objeto 'detailsResult' está vacío o es indefinido.");
+      }
+    } catch (error) {
+      console.error("Error al obtener los detalles del lugar:", error);
+    }
+  };
+  
+  const updateFormData = (details) => {
+    if (!details) {
+      console.error("El objeto 'details' no es válido.");
+      return;
+    }
+  
+    newReviewFormData.restaurantName = details.displayName?.text || "";  // Verifica si existe 'displayName'
+    newReviewFormData.restaurantDirection = details.formattedAddress || "";
+    newReviewFormData.restaurantPhone = details.internationalPhoneNumber || "";
+    newReviewFormData.restaurantFichaGoogleMaps = details.googleMapsUri || "";
+    newReviewFormData.restaurantRatingGoolgeMaps = details.rating || "";
+    newReviewFormData.restaurantReviewesGoogleMaps = details.userRatingCount || "";
+    newReviewFormData.restaurantPriceLevelGoogleMaps = details.priceLevel || "";
+    newReviewFormData.restaurantState = details.businessStatus || "";
+    newReviewFormData.lat = details.location?.latitude || "";
+    newReviewFormData.lon = details.location?.longitude || "";
+    console.log("Datos del formulario actualizados:", newReviewFormData);
+  };
 
   // Obtener los vídeos actuales
   const indexOfLastVideo = currentPage * videosPerPage;
