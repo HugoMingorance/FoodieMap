@@ -5,7 +5,7 @@ import Sidebar from '../components/Sidebar';
 import styles from '../page.module.css';
 import { db } from '../FirebaseConfig.js';
 import { collection, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
-import { searchPlaces } from '../../utils/googlePlacesService.js';
+import { searchPlaces, getPlaceDetails } from '../../utils/googlePlacesService.js';
 
 const EditVideos = () => {
   const [videos, setVideos] = useState([]);
@@ -22,7 +22,8 @@ const EditVideos = () => {
     restaurantPhone:'', restaurantWebsite:'', restaurantFichaTripadvisor:'', restaurantFichaGoogleMaps:'', restaurantRatingGoolgeMaps:'', restaurantReviewesGoogleMaps:'', 
     restaurantPriceLevelGoogleMaps: '', restaurantImage:'',restaurantState:'',
   });
-  const [placesOptions, setPlacesOptions] = useState([]);
+  const [places, setPlaces] = useState([]); // Estado para almacenar las places devueltas por la búsqueda
+
 
   useEffect(() => {
     fetchReviewers();
@@ -113,15 +114,24 @@ const EditVideos = () => {
 
   const handleSearchPlaces = async (query) => {
     try {
-      const response = await searchPlaces(query);
-      setPlacesOptions(response.places || []);
+      const placesResult = await searchPlaces(query); // Guarda el retorno en una variable
+      setPlaces(placesResult); 
+      console.log("Lugares encontrados:", placesResult);
     } catch (error) {
       console.error('Error al buscar lugares:', error);
     }
   };
 
+  const handlePlaceSelection = (placeId) => {
+    setNewReviewFormData({
+      ...newReviewFormData,
+      restaurantGooglePlaceId: placeId // Guardar el Place ID seleccionado
+    });
+  };
+
   const handleSearchGooglePlaceId = () => {
     console.log("Buscando Google Place ID:");
+    
   }
 
   // Obtener los vídeos actuales
@@ -263,19 +273,19 @@ const EditVideos = () => {
                       >
                         Obtenir GooglePlace ID
                       </button>
-                      {placesOptions.length > 0 && (
-                        <div className={styles.placesDropdown}>
-                          <label>Lugares encontrados:</label>
+                      {places.length > 0 && (
+                        <div className={styles.dropdown}>
+                          <label>Selecciona un lugar:</label>
                           <select
-                            name="restaurantGooglePlaceId"
-                            value={newReviewFormData.restaurantGooglePlaceId}
-                            onChange={handleNewReviewFormChange}
-                            className={styles.input}
+                            onChange={(e) => handlePlaceSelection(e.target.value)} // Actualizar el Place ID seleccionado
+                            className={styles.dropdownSelect}
                           >
                             <option value="">Selecciona un lugar</option>
-                            {placesOptions.map((place, idx) => (
-                              <option key={idx} value={place.id}>
-                                {place.displayName?.main || 'Lugar sin nombre'} - {place.formattedAddress}
+                            {places.map((place, index) => (
+                              <option key={place.id || index} value={place.id || ""}>
+                                {place.displayName?.text 
+                                  ? `${place.displayName.text} - ${place.formattedAddress || "Sin dirección"}`
+                                  : "Sin nombre"}
                               </option>
                             ))}
                           </select>
