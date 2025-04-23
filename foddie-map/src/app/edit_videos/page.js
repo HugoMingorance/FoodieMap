@@ -23,7 +23,7 @@ const EditVideos = () => {
     restaurantPriceLevelGoogleMaps: '', restaurantImage:'',restaurantState:'',
   });
   const [places, setPlaces] = useState([]); // Estado para almacenar las places devueltas por la búsqueda
-
+  const [details, setDetails] = useState([]);
 
   useEffect(() => {
     fetchReviewers();
@@ -129,9 +129,20 @@ const EditVideos = () => {
     });
   };
 
-  const handleSearchGooglePlaceId = () => {
+  const handleSearchGooglePlaceId = async (query) => {
     console.log("Buscando Google Place ID:");
-    
+    const detailsResult = await getPlaceDetails(query)
+    console.log("Detalles del lugar:", detailsResult);
+    setDetails(detailsResult);
+    console.log(details.displayName);
+    newReviewFormData.restaurantName = details.displayName.text;
+    newReviewFormData.restaurantDirection = details.formattedAddress;
+    newReviewFormData.restaurantPhone = details.internationalPhoneNumber;
+    newReviewFormData.restaurantFichaGoogleMaps = details.googleMapsUri;
+    newReviewFormData.restaurantRatingGoolgeMaps = details.rating;
+    newReviewFormData.restaurantReviewesGoogleMaps = details.userRatingCount;
+    newReviewFormData.restaurantPriceLevelGoogleMaps = details.priceLevel;
+    newReviewFormData.restaurantState = details.businessStatus;  
   }
 
   // Obtener los vídeos actuales
@@ -302,7 +313,7 @@ const EditVideos = () => {
                         />
                         <button
                           type="button"
-                          onClick={handleSearchGooglePlaceId}
+                          onClick={() => handleSearchGooglePlaceId(newReviewFormData.restaurantGooglePlaceId)}
                           className={styles.formButton}
                         >
                           Obtenir dades de GooglePlace ID
