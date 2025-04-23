@@ -22,6 +22,7 @@ const EditVideos = () => {
     restaurantPhone:'', restaurantWebsite:'', restaurantFichaTripadvisor:'', restaurantFichaGoogleMaps:'', restaurantRatingGoolgeMaps:'', restaurantReviewesGoogleMaps:'', 
     restaurantPriceLevelGoogleMaps: '', restaurantImage:'',restaurantState:'',
   });
+  const [placesOptions, setPlacesOptions] = useState([]);
 
   useEffect(() => {
     fetchReviewers();
@@ -110,25 +111,18 @@ const EditVideos = () => {
     });
   };
 
-  const handleSearchGooglePlaceId = async () => {
-    const query = newReviewFormData.restaurantDescription.trim(); // Usar el campo de descripción
-  
-    if (!query) {
-      alert("Por favor, introduce una descripción del restaurante para buscar.");
-      return;
-    }
-  
+  const handleSearchPlaces = async (query) => {
     try {
-      const results = await searchPlaces(query);
-      console.log("Resultados de búsqueda de Google Places:", results);
-      // Puedes añadir lógica aquí para manejar los resultados obtenidos.
-      // Por ejemplo: mostrar una lista de opciones al usuario.
-      alert(`Resultados obtenidos: ${JSON.stringify(results)}`);
+      const response = await searchPlaces(query);
+      setPlacesOptions(response.places || []);
     } catch (error) {
-      console.error("Error buscando Google Place ID:", error);
-      alert("Hubo un problema al buscar el Google Place ID.");
+      console.error('Error al buscar lugares:', error);
     }
   };
+
+  const handleSearchGooglePlaceId = () => {
+    console.log("Buscando Google Place ID:");
+  }
 
   // Obtener los vídeos actuales
   const indexOfLastVideo = currentPage * videosPerPage;
@@ -262,6 +256,31 @@ const EditVideos = () => {
                           className={styles.input}
                         />
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSearchPlaces(newReviewFormData.restaurantDescription)}
+                        className={styles.formButton}
+                      >
+                        Obtenir GooglePlace ID
+                      </button>
+                      {placesOptions.length > 0 && (
+                        <div className={styles.placesDropdown}>
+                          <label>Lugares encontrados:</label>
+                          <select
+                            name="restaurantGooglePlaceId"
+                            value={newReviewFormData.restaurantGooglePlaceId}
+                            onChange={handleNewReviewFormChange}
+                            className={styles.input}
+                          >
+                            <option value="">Selecciona un lugar</option>
+                            {placesOptions.map((place, idx) => (
+                              <option key={idx} value={place.id}>
+                                {place.displayName?.main || 'Lugar sin nombre'} - {place.formattedAddress}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                       <div className={styles.formGroup}>
                         <label>Google Place ID</label>
                         <input
