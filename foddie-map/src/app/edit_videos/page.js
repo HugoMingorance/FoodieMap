@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import styles from '../page.module.css';
 import { db } from '../FirebaseConfig.js';
-import { collection, getDocs, query, where, deleteDoc, doc, addDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, deleteDoc, doc, addDoc, setDoc } from "firebase/firestore";
 import { searchPlaces, getPlaceDetails } from '../../utils/googlePlacesService.js';
 
 const EditVideos = () => {
@@ -28,6 +28,9 @@ const EditVideos = () => {
   const [draftSearchQuery, setDraftSearchQuery] = useState('');
   const [currentDraftPage, setCurrentDraftPage] = useState(1);
   const [draftsPerPage] = useState(1); // Número de borradores por página
+  const [isEditingDraft, setIsEditingDraft] = useState(false); // Nuevo estado para modo edición
+  const [editingDraftId, setEditingDraftId] = useState(null); // ID del borrador que se está editando
+  const [isCreatingDraft, setIsCreatingDraft] = useState(false);
 
   const indexOfLastDraft = currentDraftPage * draftsPerPage;
   const indexOfFirstDraft = indexOfLastDraft - draftsPerPage;
@@ -117,7 +120,29 @@ const EditVideos = () => {
   };
 
   const handleNewReviewClick = () => {
-    setNewReviewFormVisible(!newReviewFormVisible);
+    if (isEditingDraft) return; // Si estás editando, no puedes crear
+    setNewReviewFormVisible(true);
+    setIsCreatingDraft(true); // Activar modo creación
+    setIsEditingDraft(false); // Desactivar modo edición
+    setEditingDraftId(null); // Asegurarnos de que no hay borrador en edición
+    setNewReviewFormData({
+      startSecond: '',
+      restaurantName: '',
+      restaurantDescription: '',
+      restaurantGooglePlaceId: '',
+      restaurantDirection: '',
+      restaurantPhone: '',
+      restaurantWebsite: '',
+      restaurantFichaTripadvisor: '',
+      restaurantFichaGoogleMaps: '',
+      restaurantRatingGoolgeMaps: '',
+      restaurantReviewesGoogleMaps: '',
+      restaurantPriceLevelGoogleMaps: '',
+      restaurantImage: '',
+      restaurantState: '',
+      lon: '',
+      lat: ''
+    });
   };
 
   const handleSaveAsBorrador = async () => {
@@ -195,6 +220,74 @@ const EditVideos = () => {
     setDraftSearchQuery(query);
     fetchDrafts(viewVideoId, query); // Actualizar la búsqueda de borradores
   };
+
+  // Función para manejar la edición de un borrador
+const handleEditDraft = (draft) => {
+  if (isCreatingDraft) return; // Si estás creando, no puedes editar
+  setNewReviewFormData({
+    startSecond: draft.startSecond || '',
+    restaurantName: draft.restaurantName || '',
+    restaurantDescription: draft.restaurantDescription || '',
+    restaurantGooglePlaceId: draft.restaurantGooglePlaceId || '',
+    restaurantDirection: draft.restaurantDirection || '',
+    restaurantPhone: draft.restaurantPhone || '',
+    restaurantWebsite: draft.restaurantWebsite || '',
+    restaurantFichaTripadvisor: draft.restaurantFichaTripadvisor || '',
+    restaurantFichaGoogleMaps: draft.restaurantFichaGoogleMaps || '',
+    restaurantRatingGoolgeMaps: draft.restaurantRatingGoolgeMaps || '',
+    restaurantReviewesGoogleMaps: draft.restaurantReviewesGoogleMaps || '',
+    restaurantPriceLevelGoogleMaps: draft.restaurantPriceLevelGoogleMaps || '',
+    restaurantImage: draft.restaurantImage || '',
+    restaurantState: draft.restaurantState || '',
+    lon: draft.restaurantLon || '',
+    lat: draft.restaurantLat || ''
+  });
+  setEditingDraftId(draft.id); // Establecemos el borrador en edición
+  setIsEditingDraft(true); // Activar modo edición
+  setIsCreatingDraft(false); // Desactivar modo creación
+  setNewReviewFormVisible(true); // Mostrar el formulario
+};
+
+// Función para guardar cambios en el borrador editado
+const handleSaveEditedDraft = async () => {
+  try {
+    if (editingDraftId) {
+      const draftRef = doc(db, "VideosToEdit", viewVideoId, "Borradores", editingDraftId);
+      await setDoc(draftRef, newReviewFormData, { merge: true }); // Actualiza el borrador
+      setSuccessMessage('Borrador editado con éxito');
+      fetchDrafts(viewVideoId); // Actualiza la lista de borradores
+      handleCancelEdit(); // Salimos del modo edición
+    }
+  } catch (error) {
+    console.error("Error al editar el borrador:", error);
+  }
+};
+
+// Cancelar creación o edición
+const handleCancelEdit = () => {
+  setIsEditingDraft(false); // Salir del modo edición
+  setIsCreatingDraft(false); // Salir del modo creación
+  setNewReviewFormVisible(false); // Cerrar el formulario
+  setEditingDraftId(null); // Limpiar el ID del borrador en edición
+  setNewReviewFormData({
+    startSecond: '',
+    restaurantName: '',
+    restaurantDescription: '',
+    restaurantGooglePlaceId: '',
+    restaurantDirection: '',
+    restaurantPhone: '',
+    restaurantWebsite: '',
+    restaurantFichaTripadvisor: '',
+    restaurantFichaGoogleMaps: '',
+    restaurantRatingGoolgeMaps: '',
+    restaurantReviewesGoogleMaps: '',
+    restaurantPriceLevelGoogleMaps: '',
+    restaurantImage: '',
+    restaurantState: '',
+    lon: '',
+    lat: ''
+  });
+};
   
   const handleNewReviewFormChange = (e) => {
     const { name, value } = e.target;
@@ -370,10 +463,12 @@ const EditVideos = () => {
                   </div>
 
                   {/* Mostrar borradores asociados */}
+{/* Mostrar borradores asociados */}
 <h3>Borradores asociados:</h3>
 <ul className={styles.reviewersList}>
   <li className={styles.listTitleItem}>
     <div className={styles.nombre}>Nombre del borrador</div>
+    <div className={styles.acciones}>Acciones</div>
   </li>
 </ul>
 <ul className={styles.reviewersList}>
@@ -381,6 +476,20 @@ const EditVideos = () => {
     currentDrafts.map(draft => (
       <li key={draft.id} className={styles.reviewerItem}>
         <div className={styles.reviewerName}>{draft.restaurantName}</div>
+        <div className={styles.reviewerActions}>
+          <button
+            className={styles.editButton}
+            onClick={() => handleEditDraft(draft)}
+          >
+            ✏️ Editar
+          </button>
+          <button
+            className={styles.deleteButton}
+            onClick={() => handleDeleteDraft(draft.id)}
+          >
+            ❌ Eliminar
+          </button>
+        </div>
       </li>
     ))
   ) : (
@@ -580,20 +689,33 @@ const EditVideos = () => {
                           className={styles.input}
                         />
                       </div>
-                      <button
-                        type="button"
-                        className={styles.cancelButton}
-                        onClick={handleNewReviewClick}
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.submitButton}
-                        onClick={handleSaveAsBorrador}
-                      >
-                        Guardar borrador
-                      </button>
+                      <div className={styles.formButtonGroup}>
+                        {isCreatingDraft && (
+                          <button
+                            type="button"
+                            className={styles.submitButton}
+                            onClick={handleSaveAsBorrador}
+                          >
+                            Guardar borrador
+                          </button>
+                        )}
+                        {isEditingDraft && (
+                          <button
+                            type="button"
+                            className={styles.submitButton}
+                            onClick={handleSaveEditedDraft}
+                          >
+                            Guardar cambios
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className={styles.cancelButton}
+                          onClick={handleCancelEdit}
+                        >
+                          Cancelar
+                        </button>
+                        </div>
                     </form>
                   )}
                 </li>
