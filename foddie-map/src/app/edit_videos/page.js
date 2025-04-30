@@ -24,6 +24,21 @@ const EditVideos = () => {
   });
   const [places, setPlaces] = useState([]); // Estado para almacenar las places devueltas por la búsqueda
   const [details, setDetails] = useState([]);
+  const [drafts, setDrafts] = useState([]);
+  const [draftSearchQuery, setDraftSearchQuery] = useState('');
+  const [currentDraftPage, setCurrentDraftPage] = useState(1);
+  const [draftsPerPage] = useState(1); // Número de borradores por página
+
+  const indexOfLastDraft = currentDraftPage * draftsPerPage;
+  const indexOfFirstDraft = indexOfLastDraft - draftsPerPage;
+  const currentDrafts = drafts.slice(indexOfFirstDraft, indexOfLastDraft);
+
+  const draftPageNumbers = [];
+  for (let i = 1; i <= Math.ceil(drafts.length / draftsPerPage); i++) {
+    draftPageNumbers.push(i);
+  }
+
+  const paginateDrafts = (pageNumber) => setCurrentDraftPage(pageNumber);
 
   useEffect(() => {
     fetchReviewers();
@@ -94,6 +109,7 @@ const EditVideos = () => {
 
   const handleViewClick = (videoId) => {
     setViewVideoId(videoId);
+    fetchDrafts(videoId); 
   };
 
   const handleHideClick = () => {
@@ -156,6 +172,29 @@ const EditVideos = () => {
         console.error("Error al guardar el borrador:", error);
     }
 };
+
+  const fetchDrafts = async (videoId, searchQuery = '') => {
+    try {
+      const draftsRef = collection(db, "VideosToEdit", videoId, "Borradores");
+      const q = searchQuery
+        ? query(draftsRef, where("restaurantName", ">=", searchQuery), where("restaurantName", "<=", searchQuery + '\uf8ff'))
+        : draftsRef;
+      const snapshot = await getDocs(q);
+      const draftsList = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setDrafts(draftsList);
+    } catch (error) {
+      console.error("Error al buscar borradores:", error);
+    }
+  };
+
+  const handleDraftSearchChange = (e) => {
+    const query = e.target.value;
+    setDraftSearchQuery(query);
+    fetchDrafts(viewVideoId, query); // Actualizar la búsqueda de borradores
+  };
   
   const handleNewReviewFormChange = (e) => {
     const { name, value } = e.target;
@@ -329,6 +368,44 @@ const EditVideos = () => {
                     <button type="button" className={styles.newReviewButton} onClick={handleNewReviewClick}>Crear review manualmente</button>
                     <button type="button" className={styles.cancelButton} onClick={handleHideClick}>Hide</button>
                   </div>
+
+                  {/* Mostrar borradores asociados */}
+<h3>Borradores asociados:</h3>
+<ul className={styles.reviewersList}>
+  <li className={styles.listTitleItem}>
+    <div className={styles.nombre}>Nombre del borrador</div>
+  </li>
+</ul>
+<ul className={styles.reviewersList}>
+  {currentDrafts.length > 0 ? (
+    currentDrafts.map(draft => (
+      <li key={draft.id} className={styles.reviewerItem}>
+        <div className={styles.reviewerName}>{draft.restaurantName}</div>
+      </li>
+    ))
+  ) : (
+    <li className={styles.noDrafts}>No hay borradores asociados a este video.</li>
+  )}
+</ul>
+{/* Paginación para borradores */}
+<div className={styles.pagination}>
+  <button onClick={() => paginateDrafts(currentDraftPage - 1)} disabled={currentDraftPage === 1}>
+    Anterior
+  </button>
+  {draftPageNumbers.map(number => (
+    <button
+      key={number}
+      onClick={() => paginateDrafts(number)}
+      className={currentDraftPage === number ? styles.active : ''}
+    >
+      {number}
+    </button>
+  ))}
+  <button onClick={() => paginateDrafts(currentDraftPage + 1)} disabled={currentDraftPage === draftPageNumbers.length}>
+    Siguiente
+  </button>
+</div>
+
                   {newReviewFormVisible && (
                     <form className={styles.newReviewForm}>
                       <div className={styles.formGroup}>
