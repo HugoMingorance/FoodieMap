@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import styles from '../page.module.css';
 import { db } from '../FirebaseConfig.js';
-import { collection, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, query, where, deleteDoc, doc, addDoc } from "firebase/firestore";
 import { searchPlaces, getPlaceDetails } from '../../utils/googlePlacesService.js';
 
 const EditVideos = () => {
@@ -103,6 +103,59 @@ const EditVideos = () => {
   const handleNewReviewClick = () => {
     setNewReviewFormVisible(!newReviewFormVisible);
   };
+
+  const handleSaveAsBorrador = async () => {
+    try {
+        // Validar que todos los campos obligatorios estén completos
+        if (!newReviewFormData.restaurantGooglePlaceId && 
+            !newReviewFormData.restaurantName && 
+            !newReviewFormData.restaurantDescription && 
+            !newReviewFormData.restaurantDirection && 
+            !newReviewFormData.restaurantPhone && 
+            !newReviewFormData.restaurantWebsite && 
+            !newReviewFormData.restaurantFichaTripadvisor && 
+            !newReviewFormData.restaurantFichaGoogleMaps && 
+            !newReviewFormData.restaurantReviewesGoogleMaps && 
+            !newReviewFormData.restaurantPriceLevelGoogleMaps && 
+            !newReviewFormData.restaurantImage && 
+            !newReviewFormData.restaurantState) {
+            alert("Omple totes les dades obligatories");
+            return;
+        }
+
+        // Crear un identificador único para el subdocumento
+        const subDocId = `borradorDe_${viewVideoId}_${newReviewFormData.restaurantName.replace(/[^a-zA-Z0-9]/g, "_")}`;
+
+        const docRef = await addDoc(
+          collection(db, "VideosToEdit", viewVideoId, "Borradores"), // Subcolección "Borradores" dentro del documento "viewVideoId"
+          {
+            restaurantName: newReviewFormData.restaurantName,
+            restaurantDescription: newReviewFormData.restaurantDescription,
+            restaurantGooglePlaceId: newReviewFormData.restaurantGooglePlaceId,
+            restaurantDirection: newReviewFormData.restaurantDirection,
+            restaurantPhone: newReviewFormData.restaurantPhone,
+            restaurantWebsite: newReviewFormData.restaurantWebsite,
+            restaurantFichaTripadvisor: newReviewFormData.restaurantFichaTripadvisor,
+            restaurantFichaGoogleMaps: newReviewFormData.restaurantFichaGoogleMaps,
+            restaurantRatingGoolgeMaps: newReviewFormData.restaurantRatingGoolgeMaps,
+            restaurantReviewesGoogleMaps: newReviewFormData.restaurantReviewesGoogleMaps,
+            restaurantPriceLevelGoogleMaps: newReviewFormData.restaurantPriceLevelGoogleMaps,
+            restaurantImage: newReviewFormData.restaurantImage,
+            restaurantState: newReviewFormData.restaurantState,
+            restaurantLat: newReviewFormData.lat,
+            restaurantLon: newReviewFormData.lon,
+            startSecond: newReviewFormData.startSecond,
+            videoId: viewVideoId, // Referencia al video original
+            path: `VideosToEdit/${viewVideoId}` // Campo adicional con el path
+          }
+        );
+
+        console.log("Borrador guardado con éxito:", docRef.id);
+
+    } catch (error) {
+        console.error("Error al guardar el borrador:", error);
+    }
+};
   
   const handleNewReviewFormChange = (e) => {
     const { name, value } = e.target;
@@ -456,6 +509,13 @@ const EditVideos = () => {
                         onClick={handleNewReviewClick}
                       >
                         Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.submitButton}
+                        onClick={handleSaveAsBorrador}
+                      >
+                        Guardar borrador
                       </button>
                     </form>
                   )}
