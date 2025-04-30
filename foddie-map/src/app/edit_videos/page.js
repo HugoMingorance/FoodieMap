@@ -147,56 +147,85 @@ const EditVideos = () => {
 
   const handleSaveAsBorrador = async () => {
     try {
-        // Validar que todos los campos obligatorios estén completos
-        if (!newReviewFormData.restaurantGooglePlaceId && 
-            !newReviewFormData.restaurantName && 
-            !newReviewFormData.restaurantDescription && 
-            !newReviewFormData.restaurantDirection && 
-            !newReviewFormData.restaurantPhone && 
-            !newReviewFormData.restaurantWebsite && 
-            !newReviewFormData.restaurantFichaTripadvisor && 
-            !newReviewFormData.restaurantFichaGoogleMaps && 
-            !newReviewFormData.restaurantReviewesGoogleMaps && 
-            !newReviewFormData.restaurantPriceLevelGoogleMaps && 
-            !newReviewFormData.restaurantImage && 
-            !newReviewFormData.restaurantState) {
-            alert("Omple totes les dades obligatories");
-            return;
+      // Validar que todos los campos obligatorios estén completos
+      if (!newReviewFormData.restaurantGooglePlaceId && 
+          !newReviewFormData.restaurantName && 
+          !newReviewFormData.restaurantDescription && 
+          !newReviewFormData.restaurantDirection && 
+          !newReviewFormData.restaurantPhone && 
+          !newReviewFormData.restaurantWebsite && 
+          !newReviewFormData.restaurantFichaTripadvisor && 
+          !newReviewFormData.restaurantFichaGoogleMaps && 
+          !newReviewFormData.restaurantReviewesGoogleMaps && 
+          !newReviewFormData.restaurantPriceLevelGoogleMaps && 
+          !newReviewFormData.restaurantImage && 
+          !newReviewFormData.restaurantState) {
+        alert("Omple totes les dades obligatories");
+        return;
+      }
+  
+      // Crear un identificador único para el subdocumento
+      const subDocId = `borradorDe_${viewVideoId}_${newReviewFormData.restaurantName.replace(/[^a-zA-Z0-9]/g, "_")}`;
+  
+      // Guardar el documento en Firestore
+      const docRef = await addDoc(
+        collection(db, "VideosToEdit", viewVideoId, "Borradores"), // Subcolección "Borradores" dentro del documento "viewVideoId"
+        {
+          restaurantName: newReviewFormData.restaurantName,
+          restaurantDescription: newReviewFormData.restaurantDescription,
+          restaurantGooglePlaceId: newReviewFormData.restaurantGooglePlaceId,
+          restaurantDirection: newReviewFormData.restaurantDirection,
+          restaurantPhone: newReviewFormData.restaurantPhone,
+          restaurantWebsite: newReviewFormData.restaurantWebsite,
+          restaurantFichaTripadvisor: newReviewFormData.restaurantFichaTripadvisor,
+          restaurantFichaGoogleMaps: newReviewFormData.restaurantFichaGoogleMaps,
+          restaurantRatingGoolgeMaps: newReviewFormData.restaurantRatingGoolgeMaps,
+          restaurantReviewesGoogleMaps: newReviewFormData.restaurantReviewesGoogleMaps,
+          restaurantPriceLevelGoogleMaps: newReviewFormData.restaurantPriceLevelGoogleMaps,
+          restaurantImage: newReviewFormData.restaurantImage,
+          restaurantState: newReviewFormData.restaurantState,
+          restaurantLat: newReviewFormData.lat,
+          restaurantLon: newReviewFormData.lon,
+          startSecond: newReviewFormData.startSecond,
+          videoId: viewVideoId, // Referencia al video original
+          path: `VideosToEdit/${viewVideoId}` // Campo adicional con el path
         }
-
-        // Crear un identificador único para el subdocumento
-        const subDocId = `borradorDe_${viewVideoId}_${newReviewFormData.restaurantName.replace(/[^a-zA-Z0-9]/g, "_")}`;
-
-        const docRef = await addDoc(
-          collection(db, "VideosToEdit", viewVideoId, "Borradores"), // Subcolección "Borradores" dentro del documento "viewVideoId"
-          {
-            restaurantName: newReviewFormData.restaurantName,
-            restaurantDescription: newReviewFormData.restaurantDescription,
-            restaurantGooglePlaceId: newReviewFormData.restaurantGooglePlaceId,
-            restaurantDirection: newReviewFormData.restaurantDirection,
-            restaurantPhone: newReviewFormData.restaurantPhone,
-            restaurantWebsite: newReviewFormData.restaurantWebsite,
-            restaurantFichaTripadvisor: newReviewFormData.restaurantFichaTripadvisor,
-            restaurantFichaGoogleMaps: newReviewFormData.restaurantFichaGoogleMaps,
-            restaurantRatingGoolgeMaps: newReviewFormData.restaurantRatingGoolgeMaps,
-            restaurantReviewesGoogleMaps: newReviewFormData.restaurantReviewesGoogleMaps,
-            restaurantPriceLevelGoogleMaps: newReviewFormData.restaurantPriceLevelGoogleMaps,
-            restaurantImage: newReviewFormData.restaurantImage,
-            restaurantState: newReviewFormData.restaurantState,
-            restaurantLat: newReviewFormData.lat,
-            restaurantLon: newReviewFormData.lon,
-            startSecond: newReviewFormData.startSecond,
-            videoId: viewVideoId, // Referencia al video original
-            path: `VideosToEdit/${viewVideoId}` // Campo adicional con el path
-          }
-        );
-
-        console.log("Borrador guardado con éxito:", docRef.id);
-
+      );
+  
+      // Mostrar mensaje de éxito
+      setSuccessMessage('Borrador guardado con éxito.');
+  
+      // Actualizar la lista de borradores
+      fetchDrafts(viewVideoId);
+  
+      // Reiniciar el formulario y el estado
+      setNewReviewFormVisible(false); // Cerrar el formulario
+      setIsCreatingDraft(false); // Salir del modo de creación
+      setNewReviewFormData({
+        startSecond: '',
+        restaurantName: '',
+        restaurantDescription: '',
+        restaurantGooglePlaceId: '',
+        restaurantDirection: '',
+        restaurantPhone: '',
+        restaurantWebsite: '',
+        restaurantFichaTripadvisor: '',
+        restaurantFichaGoogleMaps: '',
+        restaurantRatingGoolgeMaps: '',
+        restaurantReviewesGoogleMaps: '',
+        restaurantPriceLevelGoogleMaps: '',
+        restaurantImage: '',
+        restaurantState: '',
+        lon: '',
+        lat: ''
+      });
+  
+      console.log("Borrador guardado con éxito:", docRef.id);
+  
     } catch (error) {
-        console.error("Error al guardar el borrador:", error);
+      console.error("Error al guardar el borrador:", error);
     }
-};
+  };
 
   const fetchDrafts = async (videoId, searchQuery = '') => {
     try {
