@@ -414,17 +414,24 @@ const handleCancelEdit = () => {
         return;
       }
   
+      // Obtenemos la información del video para incluirla en la subcolección "videos"
+      const videoData = videos.find(video => video.id === videoId);
+      if (!videoData) {
+        alert("No se encontró la información del video.");
+        return;
+      }
+  
       // Creamos un documento en la colección "restaurants" por cada borrador
       const promises = draftsSnapshot.docs.map(async (doc) => {
         const draftData = doc.data();
-
+  
         // Comprobar si ya existe un restaurante con el mismo googlePlaceId
         const existingRestaurantsQuery = query(
           collection(db, "restaurants"),
           where("googlePlaceId", "==", draftData.restaurantGooglePlaceId)
         );
         const existingRestaurantsSnapshot = await getDocs(existingRestaurantsQuery);
-
+  
         if (!existingRestaurantsSnapshot.empty) {
           // Si existe, mostramos un mensaje y no creamos el documento
           const existingRestaurant = existingRestaurantsSnapshot.docs[0].data();
@@ -434,7 +441,7 @@ const handleCancelEdit = () => {
         }
   
         // Crear un nuevo documento en "restaurants" con la información del borrador
-        await addDoc(collection(db, "restaurants"), {
+        const restaurantRef = await addDoc(collection(db, "restaurants"), {
           name: draftData.restaurantName,
           description: draftData.restaurantDescription,
           googlePlaceId: draftData.restaurantGooglePlaceId,
@@ -453,6 +460,16 @@ const handleCancelEdit = () => {
           videoId: videoId, // Referenciamos el video
           draftId: doc.id, // Referenciamos el borrador
           createdAt: new Date().toISOString(), // Fecha de creación
+        });
+  
+        // Crear la subcolección "videos" para este restaurante
+        const videoRef = collection(restaurantRef, "videos");
+        await addDoc(videoRef, {
+          platformReviewId: videoData.PlatformReviewId,
+          reviewerId: videoData.ReviewerId,
+          title: videoData.Title,
+          type: videoData.Type,
+          publishDate: videoData.publishDate,
         });
       });
   
