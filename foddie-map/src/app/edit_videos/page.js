@@ -378,7 +378,7 @@ const handleCancelEdit = () => {
       return;
     }
   
-    newReviewFormData.restaurantName = details.displayName?.text || "";  // Verifica si existe 'displayName'
+    newReviewFormData.restaurantName = details.displayName?.text || ""; 
     newReviewFormData.restaurantDirection = details.formattedAddress || "";
     newReviewFormData.restaurantPhone = details.internationalPhoneNumber || "";
     newReviewFormData.restaurantFichaGoogleMaps = details.googleMapsUri || "";
