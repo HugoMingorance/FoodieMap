@@ -417,6 +417,21 @@ const handleCancelEdit = () => {
       // Creamos un documento en la colección "restaurants" por cada borrador
       const promises = draftsSnapshot.docs.map(async (doc) => {
         const draftData = doc.data();
+
+        // Comprobar si ya existe un restaurante con el mismo googlePlaceId
+        const existingRestaurantsQuery = query(
+          collection(db, "restaurants"),
+          where("googlePlaceId", "==", draftData.restaurantGooglePlaceId)
+        );
+        const existingRestaurantsSnapshot = await getDocs(existingRestaurantsQuery);
+
+        if (!existingRestaurantsSnapshot.empty) {
+          // Si existe, mostramos un mensaje y no creamos el documento
+          const existingRestaurant = existingRestaurantsSnapshot.docs[0].data();
+          console.log(`El restaurante "${existingRestaurant.name}" ya está creado con Google Place ID: ${draftData.restaurantGooglePlaceId}`);
+          setSuccessMessage(`El restaurante "${existingRestaurant.name}" ya está creado con Google Place ID: ${draftData.restaurantGooglePlaceId}`);
+          return; // Salir de la ejecución de este borrador
+        }
   
         // Crear un nuevo documento en "restaurants" con la información del borrador
         await addDoc(collection(db, "restaurants"), {
