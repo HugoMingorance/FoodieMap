@@ -5,7 +5,7 @@ import Sidebar from "../components/Sidebar";
 import styles from "../page.module.css";
 import { db } from "../FirebaseConfig.js";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import MapComponent from "../components/MapComponent"; 
+import MapComponent from "../components/MapComponent";
 
 const EditRestaurants = () => {
   const [restaurants, setRestaurants] = useState([]);
@@ -17,9 +17,11 @@ const EditRestaurants = () => {
   const [currentReviewPage, setCurrentReviewPage] = useState(1); // Paginación para los reviews
   const [reviewsPerPage] = useState(5); // Número de reviews por página
   const [viewReviewId, setViewReviewId] = useState(null); // Controlar el review expandido
+  const [reviewers, setReviewers] = useState({}); // Información de los reviewers
 
   useEffect(() => {
     fetchRestaurants();
+    fetchReviewers();
   }, [searchQuery]);
 
   // Obtener restaurantes de Firestore
@@ -33,6 +35,18 @@ const EditRestaurants = () => {
       ...doc.data(),
     }));
     setRestaurants(restaurantsList);
+  };
+
+  // Obtener información de los reviewers
+  const fetchReviewers = async () => {
+    const reviewersRef = collection(db, "Reviewers");
+    const querySnapshot = await getDocs(reviewersRef);
+    const reviewersData = {};
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      reviewersData[data.ChannelID] = data.Name;
+    });
+    setReviewers(reviewersData);
   };
 
   // Obtener reviews asociados al restaurante
@@ -135,7 +149,7 @@ const EditRestaurants = () => {
               </li>
               {viewRestaurantId === restaurant.id && (
                 <li key={`view-${restaurant.id}`} className={styles.viewForm}>
-                 <div className={styles.formGroup}>
+                  <div className={styles.formGroup}>
                     <label>Nombre del restaurante</label>
                     <input type="text" value={restaurant.name} readOnly className={styles.input} />
                   </div>
@@ -190,6 +204,15 @@ const EditRestaurants = () => {
                               <input type="text" value={review.title} readOnly className={styles.input} />
                             </div>
                             <div className={styles.formGroup}>
+                              <label>Reviewer</label>
+                              <input
+                                type="text"
+                                value={reviewers[review.reviewerId] || "Desconocido"}
+                                readOnly
+                                className={styles.input}
+                              />
+                            </div>
+                            <div className={styles.formGroup}>
                               <label>Fecha de publicación</label>
                               <input
                                 type="text"
@@ -209,6 +232,9 @@ const EditRestaurants = () => {
                                 allowFullScreen
                               ></iframe>
                             </div>
+                            <button className={styles.cancelButton} onClick={() => handleReviewViewClick(review.id)}>
+                              Cerrar
+                            </button>
                           </li>
                         )}
                       </>
