@@ -292,6 +292,17 @@ const handleSaveEditedDraft = async () => {
   }
 };
 
+const handleDeleteDraft = (draftId) => {
+  deleteDoc(doc(db, "VideosToEdit", viewVideoId, "Borradores", draftId))
+    .then(() => {
+      setSuccessMessage('Borrador eliminado con éxito');
+      fetchDrafts(viewVideoId); // Actualizar la lista de borradores después de eliminar uno
+    })
+    .catch((error) => {
+      console.error("Error deleting draft: ", error);
+    });
+}
+
 // Cancelar creación o edición
 const handleCancelEdit = () => {
   setIsEditingDraft(false); // Salir del modo edición
