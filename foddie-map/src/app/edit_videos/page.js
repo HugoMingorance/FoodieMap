@@ -403,6 +403,55 @@ const handleCancelEdit = () => {
     pageNumbers.push(i);
   }
 
+  const volcarInfo = async (videoId) => {
+    try {
+      // Obtenemos los borradores del video
+      const draftsRef = collection(db, "VideosToEdit", videoId, "Borradores");
+      const draftsSnapshot = await getDocs(draftsRef);
+  
+      if (draftsSnapshot.empty) {
+        alert("No hay borradores asociados a este video para volcar.");
+        return;
+      }
+  
+      // Creamos un documento en la colección "restaurants" por cada borrador
+      const promises = draftsSnapshot.docs.map(async (doc) => {
+        const draftData = doc.data();
+  
+        // Crear un nuevo documento en "restaurants" con la información del borrador
+        await addDoc(collection(db, "restaurants"), {
+          name: draftData.restaurantName,
+          description: draftData.restaurantDescription,
+          googlePlaceId: draftData.restaurantGooglePlaceId,
+          address: draftData.restaurantDirection,
+          phone: draftData.restaurantPhone,
+          website: draftData.restaurantWebsite,
+          tripadvisorUrl: draftData.restaurantFichaTripadvisor,
+          googleMapsUrl: draftData.restaurantFichaGoogleMaps,
+          rating: draftData.restaurantRatingGoolgeMaps,
+          reviews: draftData.restaurantReviewesGoogleMaps,
+          priceLevel: draftData.restaurantPriceLevelGoogleMaps,
+          image: draftData.restaurantImage,
+          state: draftData.restaurantState,
+          latitude: draftData.restaurantLat,
+          longitude: draftData.restaurantLon,
+          videoId: videoId, // Referenciamos el video
+          draftId: doc.id, // Referenciamos el borrador
+          createdAt: new Date().toISOString(), // Fecha de creación
+        });
+      });
+  
+      // Esperamos a que se completen todas las promesas
+      await Promise.all(promises);
+  
+      // Mostrar mensaje de éxito
+      setSuccessMessage(`Información volcada correctamente para los borradores del video con ID: ${videoId}`);
+    } catch (error) {
+      console.error("Error al volcar la información:", error);
+      alert("Ocurrió un error al volcar la información. Por favor, inténtelo de nuevo más tarde.");
+    }
+  };
+
   return (
     <div className={styles.container}>
       <Sidebar />
@@ -502,59 +551,57 @@ const handleCancelEdit = () => {
                     <button type="button" className={styles.newReviewButton} onClick={handleNewReviewClick}>Crear review manualmente</button>
                     <button type="button" className={styles.cancelButton} onClick={handleHideClick}>Hide</button>
                   </div>
-
                   {/* Mostrar borradores asociados */}
-{/* Mostrar borradores asociados */}
-<h3>Borradores asociados:</h3>
-<ul className={styles.reviewersList}>
-  <li className={styles.listTitleItem}>
-    <div className={styles.nombre}>Nombre del borrador</div>
-    <div className={styles.acciones}>Acciones</div>
-  </li>
-</ul>
-<ul className={styles.reviewersList}>
-  {currentDrafts.length > 0 ? (
-    currentDrafts.map(draft => (
-      <li key={draft.id} className={styles.reviewerItem}>
-        <div className={styles.reviewerName}>{draft.restaurantName}</div>
-        <div className={styles.reviewerActions}>
-          <button
-            className={styles.editButton}
-            onClick={() => handleEditDraft(draft)}
-          >
-            ✏️ Editar
-          </button>
-          <button
-            className={styles.deleteButton}
-            onClick={() => handleDeleteDraft(draft.id)}
-          >
-            ❌ Eliminar
-          </button>
-        </div>
-      </li>
-    ))
-  ) : (
-    <li className={styles.noDrafts}>No hay borradores asociados a este video.</li>
-  )}
-</ul>
-{/* Paginación para borradores */}
-<div className={styles.pagination}>
-  <button onClick={() => paginateDrafts(currentDraftPage - 1)} disabled={currentDraftPage === 1}>
-    Anterior
-  </button>
-  {draftPageNumbers.map(number => (
-    <button
-      key={number}
-      onClick={() => paginateDrafts(number)}
-      className={currentDraftPage === number ? styles.active : ''}
-    >
-      {number}
-    </button>
-  ))}
-  <button onClick={() => paginateDrafts(currentDraftPage + 1)} disabled={currentDraftPage === draftPageNumbers.length}>
-    Siguiente
-  </button>
-</div>
+                  <h3>Borradores asociados:</h3>
+                  <ul className={styles.reviewersList}>
+                    <li className={styles.listTitleItem}>
+                      <div className={styles.nombre}>Nombre del borrador</div>
+                      <div className={styles.acciones}>Acciones</div>
+                    </li>
+                  </ul>
+                  <ul className={styles.reviewersList}>
+                    {currentDrafts.length > 0 ? (
+                      currentDrafts.map(draft => (
+                        <li key={draft.id} className={styles.reviewerItem}>
+                          <div className={styles.reviewerName}>{draft.restaurantName}</div>
+                          <div className={styles.reviewerActions}>
+                            <button
+                              className={styles.editButton}
+                              onClick={() => handleEditDraft(draft)}
+                            >
+                              ✏️ Editar
+                            </button>
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() => handleDeleteDraft(draft.id)}
+                            >
+                              ❌ Eliminar
+                            </button>
+                          </div>
+                        </li>
+                      ))
+                    ) : (
+                      <li className={styles.noDrafts}>No hay borradores asociados a este video.</li>
+                    )}
+                  </ul>
+                  {/* Paginación para borradores */}
+                  <div className={styles.pagination}>
+                    <button onClick={() => paginateDrafts(currentDraftPage - 1)} disabled={currentDraftPage === 1}>
+                      Anterior
+                    </button>
+                    {draftPageNumbers.map(number => (
+                      <button
+                        key={number}
+                        onClick={() => paginateDrafts(number)}
+                        className={currentDraftPage === number ? styles.active : ''}
+                      >
+                        {number}
+                      </button>
+                    ))}
+                    <button onClick={() => paginateDrafts(currentDraftPage + 1)} disabled={currentDraftPage === draftPageNumbers.length}>
+                      Siguiente
+                    </button>
+                  </div>
 
                   {newReviewFormVisible && (
                     <form className={styles.newReviewForm}>
@@ -795,7 +842,18 @@ const handleCancelEdit = () => {
                         </button>
                         </div>
                     </form>
+                    
                   )}
+                  {/* Botón "Volcar información" añadido debajo del todo */}
+                  <div className={styles.formButtonGroup}>
+                    <button
+                      type="button"
+                      className={styles.submitButton}
+                      onClick={() => volcarInfo(video.id)}
+                    >
+                      Volcar información
+                    </button>
+                  </div>
                 </li>
               )}
             </>
