@@ -6,6 +6,7 @@ import styles from '../page.module.css';
 import { db } from '../FirebaseConfig.js';
 import { collection, getDocs, query, where, deleteDoc, doc, addDoc, setDoc } from "firebase/firestore";
 import { searchPlaces, getPlaceDetails } from '../../utils/googlePlacesService.js';
+import MapComponent from '../components/MapComponent';
 
 const EditVideos = () => {
   const [videos, setVideos] = useState([]);
@@ -708,6 +709,30 @@ const handleCancelEdit = () => {
                           onChange={handleNewReviewFormChange}
                           className={styles.input}
                         />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Latitud</label>
+                        <input
+                          type="text"
+                          name="lat"
+                          value={newReviewFormData.lat}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Longitud</label>
+                        <input
+                          type="text"
+                          name="lon"
+                          value={newReviewFormData.lon}
+                          onChange={handleNewReviewFormChange}
+                          className={styles.input}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Mapa</label>
+                        <MapComponent lat={parseFloat(newReviewFormData.lat)} lon={parseFloat(newReviewFormData.lon)} />
                       </div>
                       <div className={styles.formGroup}>
                         <label>Imagen</label>
