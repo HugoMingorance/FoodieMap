@@ -388,3 +388,15 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.imagePreviewContainer {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.imagePreview {
+  max-width: 200%;
+  max-height: 350px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}

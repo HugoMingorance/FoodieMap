@@ -743,6 +743,19 @@ const handleCancelEdit = () => {
                           onChange={handleNewReviewFormChange}
                           className={styles.input}
                         />
+                        {/* Mostrar la vista previa de la imagen si la URL no está vacía */}
+                        {newReviewFormData.restaurantImage && (
+                          <div className={styles.imagePreviewContainer}>
+                            <img
+                              src={newReviewFormData.restaurantImage}
+                              alt="Vista previa de la imagen"
+                              className={styles.imagePreview}
+                              onError={(e) => {
+                                e.target.style.display = 'none'; // Ocultar la imagen si no es válida
+                              }}
+                            />
+                          </div>
+                        )}
                       </div>
                       <div className={styles.formGroup}>
                         <label>Estado</label>
