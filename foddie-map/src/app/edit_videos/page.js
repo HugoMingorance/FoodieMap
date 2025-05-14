@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import styles from '../page.module.css';
 import { db } from '../FirebaseConfig.js';
-import { collection, getDocs, query, where, deleteDoc, doc, addDoc, setDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, deleteDoc, doc, addDoc, setDoc, updateDoc } from "firebase/firestore";
 import { searchPlaces, getPlaceDetails } from '../../utils/googlePlacesService.js';
 import MapComponent from '../components/MapComponent';
 
@@ -32,6 +32,8 @@ const EditVideos = () => {
   const [isEditingDraft, setIsEditingDraft] = useState(false); // Nuevo estado para modo edición
   const [editingDraftId, setEditingDraftId] = useState(null); // ID del borrador que se está editando
   const [isCreatingDraft, setIsCreatingDraft] = useState(false);
+  const [editableVideo, setEditableVideo] = useState(null);
+
 
   const indexOfLastDraft = currentDraftPage * draftsPerPage;
   const indexOfFirstDraft = indexOfLastDraft - draftsPerPage;
@@ -112,8 +114,34 @@ const EditVideos = () => {
   };
 
   const handleViewClick = (videoId) => {
+    const selected = videos.find(r => r.id === videoId);
+    setEditableVideo({ ...selected }); // Copia editable
     setViewVideoId(videoId);
     fetchDrafts(videoId); 
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditableVideo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveChanges = async () => {
+    if (!editableVideo) return;
+    try {
+      const docRef = doc(db, "VideosToEdit", editableVideo.id);
+      const dataToUpdate = { ...editableVideo };
+      delete dataToUpdate.id; // Firestore no acepta campo id
+  
+      await updateDoc(docRef, dataToUpdate);
+      alert("Datos del restaurante actualizados correctamente.");
+      fetchVideos(); // Refrescar la lista
+    } catch (error) {
+      console.error("Error al guardar cambios:", error);
+      alert("Error al guardar los cambios.");
+    }
   };
 
   const handleHideClick = () => {
@@ -556,7 +584,7 @@ const handleCancelEdit = () => {
                     <div className={styles.inputWithAvatar}>
                       <input
                         type="text"
-                        value={reviewers[video.ReviewerId]?.name || 'Desconocido'}
+                        value={reviewers[editableVideo.ReviewerId]?.name || 'Desconocido'}
                         readOnly
                         className={styles.input}
                       />
@@ -569,8 +597,9 @@ const handleCancelEdit = () => {
                     <label>Title</label>
                     <input
                       type="text"
-                      value={video.Title}
-                      readOnly
+                      name = "Title"
+                      value={editableVideo.Title}
+                      onChange={handleInputChange}
                       className={styles.input}
                     />
                   </div>
@@ -578,8 +607,9 @@ const handleCancelEdit = () => {
                     <label>Publish Date</label>
                     <input
                       type="text"
-                      value={new Date(video.publishDate).toISOString().split("T")[0]}
-                      readOnly
+                      name="publishDate"
+                      value={editableVideo.publishDate}
+                      onChange={handleInputChange}
                       className={styles.input}
                     />
                   </div>
@@ -604,6 +634,9 @@ const handleCancelEdit = () => {
                       ></iframe>
                     </div>
                   </div>
+                  <button className={styles.submitButton} onClick={handleSaveChanges}>
+                    💾 Guardar cambios
+                  </button>
                   <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'flex-start', alignItems: 'baseline', alignContent: 'stretch', gap: '10px'}}>
                     <button type="button" className={styles.newReviewButton} onClick={handleNewReviewClick}>Crear review manualmente</button>
                     <button type="button" className={styles.cancelButton} onClick={handleHideClick}>Hide</button>
