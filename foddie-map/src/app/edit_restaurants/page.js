@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import styles from "../page.module.css";
 import { db } from "../FirebaseConfig.js";
-import { collection, getDocs, query, where, updateDoc, doc } from "firebase/firestore";
+import { collection, getDocs, query, where, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import MapComponent from "../components/MapComponent";
 
 const EditRestaurants = () => {
@@ -36,6 +36,35 @@ const EditRestaurants = () => {
       ...doc.data(),
     }));
     setRestaurants(restaurantsList);
+  };
+
+  const handleDeleteRestaurant = async (restaurantId) => {
+    const confirmDelete = window.confirm("¿Estás seguro de que quieres eliminar este restaurante?");
+    if (!confirmDelete) return;
+  
+    try {
+      await deleteDoc(doc(db, "restaurants", restaurantId));
+      alert("Restaurante eliminado correctamente.");
+      fetchRestaurants(); // Refrescar lista
+    } catch (error) {
+      console.error("Error al eliminar restaurante:", error);
+      alert("Error al eliminar el restaurante.");
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    const confirmDelete = window.confirm("¿Estás seguro de que quieres eliminar este review?");
+    if (!confirmDelete || !viewRestaurantId) return;
+  
+    try {
+      const reviewRef = doc(db, "restaurants", viewRestaurantId, "videos", reviewId);
+      await deleteDoc(reviewRef);
+      alert("Review eliminado correctamente.");
+      fetchReviews(viewRestaurantId); // Refrescar reviews
+    } catch (error) {
+      console.error("Error al eliminar review:", error);
+      alert("Error al eliminar el review.");
+    }
   };
 
   // Obtener información de los reviewers
@@ -171,6 +200,9 @@ const EditRestaurants = () => {
                 <div className={styles.reviewerButtons}>
                   <button className={styles.viewButton} onClick={() => handleViewClick(restaurant.id)}>
                     👁️ Ver
+                  </button>
+                  <button className={styles.viewButton} onClick={() => handleDeleteRestaurant(restaurant.id)}>
+                    🗑️ Eliminar
                   </button>
                 </div>
               </li>
@@ -348,6 +380,9 @@ const EditRestaurants = () => {
                           <div className={styles.reviewerActions}>
                             <button className={styles.viewButton} onClick={() => handleReviewViewClick(review.id)}>
                               👁️ Ver
+                            </button>
+                            <button className={styles.viewButton} onClick={() => handleDeleteReview(review.id)}>
+                              🗑️ Eliminar
                             </button>
                           </div>
                         </li>
