@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import styles from "../page.module.css";
 import { db } from "../FirebaseConfig.js";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, updateDoc, doc } from "firebase/firestore";
 import MapComponent from "../components/MapComponent";
 
 const EditRestaurants = () => {
@@ -18,6 +18,7 @@ const EditRestaurants = () => {
   const [reviewsPerPage] = useState(1); // Número de reviews por página
   const [viewReviewId, setViewReviewId] = useState(null); // Controlar el review expandido
   const [reviewers, setReviewers] = useState({}); // Información de los reviewers
+  const [editableRestaurant, setEditableRestaurant] = useState(null);
 
   useEffect(() => {
     fetchRestaurants();
@@ -66,10 +67,36 @@ const EditRestaurants = () => {
     setCurrentPage(1); // Reiniciar a la primera página
   };
 
-  // Manejar la visualización de detalles del restaurante
   const handleViewClick = (restaurantId) => {
+    const selected = restaurants.find(r => r.id === restaurantId);
+    setEditableRestaurant({ ...selected }); // Copia editable
     setViewRestaurantId(restaurantId);
-    fetchReviews(restaurantId); // Cargar reviews asociados
+    fetchReviews(restaurantId);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditableRestaurant((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+
+  const handleSaveChanges = async () => {
+    if (!editableRestaurant) return;
+    try {
+      const docRef = doc(db, "restaurants", editableRestaurant.id);
+      const dataToUpdate = { ...editableRestaurant };
+      delete dataToUpdate.id; // Firestore no acepta campo id
+
+      await updateDoc(docRef, dataToUpdate);
+      alert("Datos del restaurante actualizados correctamente.");
+      fetchRestaurants(); // Refrescar la lista
+    } catch (error) {
+      console.error("Error al guardar cambios:", error);
+      alert("Error al guardar los cambios.");
+    }
   };
 
   // Cerrar el detalle del restaurante
@@ -149,71 +176,165 @@ const EditRestaurants = () => {
               </li>
               {viewRestaurantId === restaurant.id && (
                 <li key={`view-${restaurant.id}`} className={styles.viewForm}>
-
                   <div className={styles.formGroup}>
                     <label>Segundo de inicio</label>
-                    <input type="text" value={restaurant.startSecond} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="startSecond"
+                      value={editableRestaurant?.startSecond || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Descripción</label>
-                    <input type="text" value={restaurant.description} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="description"
+                      value={editableRestaurant?.description || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
-                    <label>Google PLace ID</label>
-                    <input type="text" value={restaurant.googlePlaceId} readOnly className={styles.input} />
+                    <label>Google Place ID</label>
+                    <input
+                      type="text"
+                      name="googlePlaceId"
+                      value={editableRestaurant?.googlePlaceId || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Nombre del restaurante</label>
-                    <input type="text" value={restaurant.name} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="name"
+                      value={editableRestaurant?.name || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Dirección</label>
-                    <input type="text" value={restaurant.address} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="address"
+                      value={editableRestaurant?.address || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Teléfono</label>
-                    <input type="text" value={restaurant.phone || "No disponible"} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="phone"
+                      value={editableRestaurant?.phone || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Sitio web</label>
-                    <input type="text" value={restaurant.website || "No disponible"} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="website"
+                      value={editableRestaurant?.website || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
-                    <label>Ficha Tripadviso</label>
-                    <input type="text" value={restaurant.tripadvisorUrl || "No disponible"} readOnly className={styles.input} />
+                    <label>Ficha Tripadvisor</label>
+                    <input
+                      type="text"
+                      name="tripadvisorUrl"
+                      value={editableRestaurant?.tripadvisorUrl || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Ficha Google Maps</label>
-                    <input type="text" value={restaurant.googleMapsUrl || "No disponible"} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="googleMapsUrl"
+                      value={editableRestaurant?.googleMapsUrl || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Rating</label>
-                    <input type="text" value={restaurant.rating || "No disponible"} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="rating"
+                      value={editableRestaurant?.rating || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Reviews Google Maps</label>
-                    <input type="text" value={restaurant.reviews || "No disponible"} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="reviews"
+                      value={editableRestaurant?.reviews || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Precio estimado</label>
-                    <input type="text" value={restaurant.priceLevel || "No disponible"} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="priceLevel"
+                      value={editableRestaurant?.priceLevel || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Latitude</label>
-                    <input type="text" value={restaurant.latitude || "No disponible"} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="latitude"
+                      value={editableRestaurant?.latitude || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Longitude</label>
-                    <input type="text" value={restaurant.longitude || "No disponible"} readOnly className={styles.input} />
+                    <input
+                      type="text"
+                      name="longitude"
+                      value={editableRestaurant?.longitude || ""}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Mapa</label>
-                    <MapComponent lat={parseFloat(restaurant.latitude)} lon={parseFloat(restaurant.longitude)} />
+                    <MapComponent
+                      lat={parseFloat(editableRestaurant?.latitude || 0)}
+                      lon={parseFloat(editableRestaurant?.longitude || 0)}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Imagen del restaurante</label>
-                    <img src={restaurant.image} alt="Imagen del restaurante" className={styles.imagePreview} />
+                    <img
+                      src={editableRestaurant?.image || ""}
+                      alt="Imagen del restaurante"
+                      className={styles.imagePreview}
+                    />
                   </div>
+
+                  <button className={styles.submitButton} onClick={handleSaveChanges}>
+                    💾 Guardar cambios
+                  </button>
                   <h3>Reviews</h3>
                   <ul className={styles.reviewersList}>
                     <li className={styles.listTitleItem}>
