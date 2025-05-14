@@ -15,7 +15,7 @@ const EditRestaurants = () => {
   const [viewRestaurantId, setViewRestaurantId] = useState(null); // Controlar el restaurante expandido
   const [reviews, setReviews] = useState([]); // Reviews asociados al restaurante
   const [currentReviewPage, setCurrentReviewPage] = useState(1); // Paginación para los reviews
-  const [reviewsPerPage] = useState(5); // Número de reviews por página
+  const [reviewsPerPage] = useState(1); // Número de reviews por página
   const [viewReviewId, setViewReviewId] = useState(null); // Controlar el review expandido
   const [reviewers, setReviewers] = useState({}); // Información de los reviewers
 
@@ -149,6 +149,19 @@ const EditRestaurants = () => {
               </li>
               {viewRestaurantId === restaurant.id && (
                 <li key={`view-${restaurant.id}`} className={styles.viewForm}>
+
+                  <div className={styles.formGroup}>
+                    <label>Segundo de inicio</label>
+                    <input type="text" value={restaurant.startSecond} readOnly className={styles.input} />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Descripción</label>
+                    <input type="text" value={restaurant.description} readOnly className={styles.input} />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Google PLace ID</label>
+                    <input type="text" value={restaurant.googlePlaceId} readOnly className={styles.input} />
+                  </div>
                   <div className={styles.formGroup}>
                     <label>Nombre del restaurante</label>
                     <input type="text" value={restaurant.name} readOnly className={styles.input} />
@@ -166,12 +179,32 @@ const EditRestaurants = () => {
                     <input type="text" value={restaurant.website || "No disponible"} readOnly className={styles.input} />
                   </div>
                   <div className={styles.formGroup}>
+                    <label>Ficha Tripadviso</label>
+                    <input type="text" value={restaurant.tripadvisorUrl || "No disponible"} readOnly className={styles.input} />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Ficha Google Maps</label>
+                    <input type="text" value={restaurant.googleMapsUrl || "No disponible"} readOnly className={styles.input} />
+                  </div>
+                  <div className={styles.formGroup}>
                     <label>Rating</label>
                     <input type="text" value={restaurant.rating || "No disponible"} readOnly className={styles.input} />
                   </div>
                   <div className={styles.formGroup}>
+                    <label>Reviews Google Maps</label>
+                    <input type="text" value={restaurant.reviews || "No disponible"} readOnly className={styles.input} />
+                  </div>
+                  <div className={styles.formGroup}>
                     <label>Precio estimado</label>
                     <input type="text" value={restaurant.priceLevel || "No disponible"} readOnly className={styles.input} />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Latitude</label>
+                    <input type="text" value={restaurant.latitude || "No disponible"} readOnly className={styles.input} />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Longitude</label>
+                    <input type="text" value={restaurant.longitude || "No disponible"} readOnly className={styles.input} />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Mapa</label>

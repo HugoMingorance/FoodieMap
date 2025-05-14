@@ -433,12 +433,36 @@ const handleCancelEdit = () => {
         const existingRestaurantsSnapshot = await getDocs(existingRestaurantsQuery);
   
         if (!existingRestaurantsSnapshot.empty) {
-          // Si existe, mostramos un mensaje y no creamos el documento
-          const existingRestaurant = existingRestaurantsSnapshot.docs[0].data();
-          console.log(`El restaurante "${existingRestaurant.name}" ya está creado con Google Place ID: ${draftData.restaurantGooglePlaceId}`);
-          setSuccessMessage(`El restaurante "${existingRestaurant.name}" ya está creado con Google Place ID: ${draftData.restaurantGooglePlaceId}`);
-          return; // Salir de la ejecución de este borrador
-        }
+          const existingRestaurantDoc = existingRestaurantsSnapshot.docs[0];
+          const existingRestaurantRef = existingRestaurantDoc.ref;
+        
+          // Añadir la review a la subcolección "videos" del restaurante existente
+          const videoRef = collection(existingRestaurantRef, "videos");
+        
+          // Comprobamos si la review ya está añadida
+          const existingVideosQuery = query(
+            videoRef,
+            where("platformReviewId", "==", videoData.PlatformReviewId)
+          );
+          const existingVideosSnapshot = await getDocs(existingVideosQuery);
+        
+          if (existingVideosSnapshot.empty) {
+            await addDoc(videoRef, {
+              platformReviewId: videoData.PlatformReviewId,
+              reviewerId: videoData.ReviewerId,
+              title: videoData.Title,
+              type: videoData.Type,
+              publishDate: videoData.publishDate,
+            });
+            console.log(`Se añadió una nueva review al restaurante existente: ${existingRestaurantDoc.data().name}`);
+            setSuccessMessage(`Review añadida al restaurante existente: ${existingRestaurantDoc.data().name}`);
+          } else {
+            console.log(`La review ya está añadida al restaurante: ${existingRestaurantDoc.data().name}`);
+            setSuccessMessage(`La review ya estaba presente en el restaurante: ${existingRestaurantDoc.data().name}`);
+          }
+        
+          return; // Importante: salimos aquí también
+        }        
   
         // Crear un nuevo documento en "restaurants" con la información del borrador
         const restaurantRef = await addDoc(collection(db, "restaurants"), {
@@ -460,6 +484,7 @@ const handleCancelEdit = () => {
           videoId: videoId, // Referenciamos el video
           draftId: doc.id, // Referenciamos el borrador
           createdAt: new Date().toISOString(), // Fecha de creación
+          startSecond: draftData.startSecond, // Segundo de inicio
         });
   
         // Crear la subcolección "videos" para este restaurante
